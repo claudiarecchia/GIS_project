@@ -1,34 +1,35 @@
 import csv
+from linestring_generator import *
 
 
 def write_nodes_to_file(folder, nodes, file_name):
     with open(folder + '/' + file_name + '.csv', mode='w') as nodes_file:
-        if "three" in file_name:
+        if "three" in file_name or "3" in file_name:
             fieldnames = ['nodo_1', 'nodo_2', 'nodo_3']
-        if "four" in file_name:
+        elif "four" in file_name or "4" in file_name:
             fieldnames = ['nodo_1', 'nodo_2', 'nodo_3', 'nodo_4']
-        if "five" in file_name:
+        elif "five" in file_name or "5" in file_name:
             fieldnames = ['nodo_1', 'nodo_2', 'nodo_3', 'nodo_4', 'nodo_5']
-        if "points" in file_name:
+        elif "points" in file_name:
             fieldnames = ['punto']
 
         writer = csv.DictWriter(nodes_file, fieldnames=fieldnames)
         writer.writeheader()
         lines = 0
         for node in nodes:
-            if "three" in file_name:
+            if "three" in file_name or "3" in file_name:
                 writer.writerow(
                     {'nodo_1': node[0], 'nodo_2': node[1], 'nodo_3': node[2]})
-            if "four" in file_name:
+            elif "four" in file_name or "4" in file_name:
                 writer.writerow(
                     {'nodo_1': node[0], 'nodo_2': node[1], 'nodo_3': node[2], 'nodo_4': node[3]})
-            if "five" in file_name:
+            elif "five" in file_name or "5" in file_name:
                 writer.writerow(
                     {'nodo_1': node[0], 'nodo_2': node[1], 'nodo_3': node[2], 'nodo_4': node[3], 'nodo_5': node[4]})
-            if "points" in file_name:
+            elif "points" in file_name:
                 writer.writerow({'punto': node})
             lines = lines + 1
-        print("Scritte su file", lines, "righe\n")
+        # print("Scritte su file", lines, "righe\n")
 
 
 def read_nodes_file(folder, filename):
@@ -44,9 +45,9 @@ def read_nodes_file(folder, filename):
                 nodes_1.append(row["nodo_1"])
                 nodes_2.append(row["nodo_2"])
                 nodes_3.append(row["nodo_3"])
-                if "four" in filename:
+                if "four" in filename or "4" in filename:
                     nodes_4.append(row["nodo_4"])
-                if "five" in filename:
+                if "five" in filename or "5" in filename:
                     nodes_4.append(row["nodo_4"])
                     nodes_5.append(row["nodo_5"])
             else:
@@ -82,11 +83,11 @@ def get_int_values(arr):
                 if len(chars_1) == 3:
                     if nodes_5:
                         nodes.append([chars_1, chars_2, chars_3, chars_4, chars_5])
-                    if nodes_5:
+                    elif nodes_4:
                         nodes.append([chars_1, chars_2, chars_3, chars_4])
-                    if nodes_5:
+                    elif nodes_3:
                         nodes.append([chars_1, chars_2, chars_3])
-                    if nodes_5:
+                    elif nodes_2:
                         nodes.append([chars_1, chars_2])
                     else:
                         nodes.append(chars_1)

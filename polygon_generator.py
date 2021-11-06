@@ -10,6 +10,44 @@ from csv_utilities import *
 from linestring_generator import *
 
 
+def get_or_create_values(filename):
+    if os.path.isfile("linestrings/" + filename + ".csv"):
+        print("OK")
+        arr = read_nodes_file("linestrings", filename)
+        points = get_int_values(arr)
+    else:
+        print("QUI")
+        if "three" in filename:
+            generate_linestring_dim_3()
+            nodes_arrays = read_nodes_file("linestrings", "three_nodes")
+            points = get_int_values(nodes_arrays)
+        elif "four" in filename:
+            generate_linestring_dim_4()
+            nodes_arrays = read_nodes_file("linestrings", "four_nodes")
+            points = get_int_values(nodes_arrays)
+        elif "five" in filename:
+            generate_linestring_dim_5()
+            nodes_arrays = read_nodes_file("linestrings", "four_nodes")
+            points = get_int_values(nodes_arrays)
+    return points
+
+
+def get_or_create_coplanar_polygons(filename):
+    if os.path.isfile("coplanar_polygons/" + filename + ".csv"):
+        print("OK")
+        arr = read_nodes_file("coplanar_polygons", filename)
+        polygons_points = get_int_values(arr)
+    else:
+        print("DA CREARE")
+        if "three" in filename or "3" in filename:
+            polygons_points = get_polygons_3_points()
+        elif "four" in filename or "4" in filename:
+            polygons_points = get_collinear_polygons_4_points()
+        elif "five" in filename or "5" in filename:
+            polygons_points = get_collinear_polygons_5_points()
+    return polygons_points
+
+
 def are_coplanar(vertices):
     x1 = vertices[0][0]
     y1 = vertices[0][1]
@@ -50,38 +88,29 @@ def are_coplanar(vertices):
     return coplanar
 
 
-# polygon = [[0, 0, 0], [1, 0, 1], [1, 1, 0], [0, 1, 1]]  # aereo
-# polygon_2 = [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]]
-# equation_plane(polygon_2)
-
-lines = generate_linestring_dim_4()
-print(lines[0])
-
-squares = []
-
-for line in lines:
-    if are_coplanar(line):
-        squares.append(line)
-
-print(len(squares))
-
-#############################################
+def get_polygons_3_points():
+    triangles = get_or_create_values("three_nodes")
+    write_nodes_to_file("coplanar_polygons", triangles, "three_nodes")
+    return triangles
 
 
+def get_collinear_polygons_4_points():
+    values = get_or_create_values("four_nodes")
+    squares = []
+    for line in values:
+        if are_coplanar(line):
+            squares.append(line)
+    write_nodes_to_file("coplanar_polygons", squares, "four_nodes")
+    return squares
 
 
+def get_collinear_polygons_5_points():
+    values = get_or_create_values("five_nodes")
+    pentagons = []
+    for line in values:
+        if are_coplanar([line[0], line[1], line[2], line[3]]) and are_coplanar([line[1], line[2], line[3], line[4]]):
+            pentagons.append(line)
+    write_nodes_to_file("coplanar_polygons", pentagons, "five_nodes")
+    return pentagons
 
-#############################################
 
-# lines_2 = generate_linestring_dim_5()
-# pentagons = []
-#
-# for line in lines_2:
-#     line = line.pop(0)  # elimino primo elemento
-#     line_2 = line.pop()  # elimino ultimo elemento
-#     print(line)
-#     print(line_2)
-#     if are_coplanar(line) and are_coplanar(line_2):
-#         pentagons.append(line)
-#
-# print(len(pentagons))

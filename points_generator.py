@@ -11,11 +11,11 @@ def generate_points(plot_dimension):
     return points
 
 
-if __name__ == "__main__":
-    # generate_points(2)
-    arr = read_nodes_file("points", "points")
-    print(arr)
-
-    nodes = get_int_values(arr)
-    for el in nodes:
-        print(el)
+# if __name__ == "__main__":
+#     # generate_points(2)
+#     arr = read_nodes_file("points", "points")
+#     print(arr)
+#
+#     nodes = get_int_values(arr)
+#     for el in nodes:
+#         print(el)

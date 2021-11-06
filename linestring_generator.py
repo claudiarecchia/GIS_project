@@ -2,10 +2,9 @@
     Generatore di spezzate con 3 o 4 segmenti
     Le spezzate non hanno necessità di essere coplanari
 """
-
-from points_generator import generate_points
 from csv_utilities import *
 import os.path
+from points_generator import *
 
 
 def check_uniqueness(lst):
@@ -69,9 +68,9 @@ def generate_linestring_dim_5():
     return lines
 
 
-if __name__ == "__main__":
-    generate_linestring_dim_5()
-    # nodes_arrays = read_nodes_file("linestrings", "three_nodes")
-    # list = get_int_values(nodes_arrays)
-    # for el in list:
-    #     print(el)
+# if __name__ == "__main__":
+#     generate_linestring_dim_5()
+#     # nodes_arrays = read_nodes_file("linestrings", "three_nodes")
+#     # list = get_int_values(nodes_arrays)
+#     # for el in list:
+#     #     print(el)
