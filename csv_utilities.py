@@ -1,9 +1,9 @@
 import csv
-from linestring_generator import *
+
 
 
 def write_nodes_to_file(folder, nodes, file_name):
-    with open(folder + '/' + file_name + '.csv', mode='w') as nodes_file:
+    with open(folder + '/' + file_name, mode='w') as nodes_file:
         if "three" in file_name or "3" in file_name:
             fieldnames = ['nodo_1', 'nodo_2', 'nodo_3']
         elif "four" in file_name or "4" in file_name:
@@ -38,7 +38,7 @@ def read_nodes_file(folder, filename):
     nodes_3 = []
     nodes_4 = []
     nodes_5 = []
-    with open(folder + '/' + filename + '.csv', mode='r') as nodes_file:
+    with open(folder + '/' + filename, mode='r') as nodes_file:
         reader = csv.DictReader(nodes_file)
         for row in reader:
             if "points" not in filename:

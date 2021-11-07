@@ -107,22 +107,22 @@ def calculate_composition_tables(points, linestrings, polygons):
             pretty_print(mat)
             print(
                 "-------------------------------------------------------------------------------------------------------")
-        print(len(matrices))
+        print("Numero tabelle di composizione generate:", len(matrices))
 
 
-if __name__ == "__main__":
-    polygons, linestrings, points = [], [], []
-    points_strings = read_nodes_file(global_variables.trials_folder, "points")
-    points = get_int_values(points_strings)
-
-    for file in global_variables.linestrings:
-        points_strings = read_nodes_file(global_variables.trials_folder, file)
-        linestrings.extend(get_int_values(points_strings))
-
-    for file in global_variables.polygons:
-        points_strings = read_nodes_file(global_variables.trials_folder, file)
-        polygons.extend(get_int_values(points_strings))
-
-    exit_if_not_JEPD(points, linestrings, polygons)
-    calculate_composition_tables(points, linestrings, polygons)
+# if __name__ == "__main__":
+#     polygons, linestrings, points = [], [], []
+#     points_strings = read_nodes_file(global_variables.trials_folder, "points")
+#     points = get_int_values(points_strings)
+#
+#     for file in global_variables.linestrings:
+#         points_strings = read_nodes_file(global_variables.trials_folder, file)
+#         linestrings.extend(get_int_values(points_strings))
+#
+#     for file in global_variables.polygons:
+#         points_strings = read_nodes_file(global_variables.trials_folder, file)
+#         polygons.extend(get_int_values(points_strings))
+#
+#     exit_if_not_JEPD(points, linestrings, polygons)
+#     calculate_composition_tables(points, linestrings, polygons)
 

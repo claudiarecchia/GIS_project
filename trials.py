@@ -7,6 +7,7 @@ from mpl_toolkits.mplot3d.art3d import *
 from csv_utilities import *
 import global_variables
 
+
 def get_figure_pints(pol_points):
     x, y, z = [], [], []
     for element in pol_points:

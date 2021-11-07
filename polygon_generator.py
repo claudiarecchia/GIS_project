@@ -8,43 +8,18 @@
 """
 from csv_utilities import *
 from linestring_generator import *
+import global_variables
 
 
-def get_or_create_values(filename):
-    if os.path.isfile("linestrings/" + filename + ".csv"):
-        print("OK")
-        arr = read_nodes_file("linestrings", filename)
-        points = get_int_values(arr)
-    else:
-        print("QUI")
-        if "three" in filename:
-            generate_linestring_dim_3()
-            nodes_arrays = read_nodes_file("linestrings", "three_nodes")
-            points = get_int_values(nodes_arrays)
-        elif "four" in filename:
-            generate_linestring_dim_4()
-            nodes_arrays = read_nodes_file("linestrings", "four_nodes")
-            points = get_int_values(nodes_arrays)
-        elif "five" in filename:
-            generate_linestring_dim_5()
-            nodes_arrays = read_nodes_file("linestrings", "four_nodes")
-            points = get_int_values(nodes_arrays)
+def get_values(folder, filename):
+    arr = read_nodes_file(folder, filename)
+    points = get_int_values(arr)
     return points
 
 
-def get_or_create_coplanar_polygons(filename):
-    if os.path.isfile("coplanar_polygons/" + filename + ".csv"):
-        print("OK")
-        arr = read_nodes_file("coplanar_polygons", filename)
-        polygons_points = get_int_values(arr)
-    else:
-        print("DA CREARE")
-        if "three" in filename or "3" in filename:
-            polygons_points = get_polygons_3_points()
-        elif "four" in filename or "4" in filename:
-            polygons_points = get_collinear_polygons_4_points()
-        elif "five" in filename or "5" in filename:
-            polygons_points = get_collinear_polygons_5_points()
+def get_coplanar_polygons(folder, filename):
+    arr = read_nodes_file(folder, filename)
+    polygons_points = get_int_values(arr)
     return polygons_points
 
 
@@ -79,38 +54,36 @@ def are_coplanar(vertices):
     # equation of plane is: a*x + b*y + c*z = 0 #
     # checking if the 4th point satisfies
     # the above equation
-    if (a * x + b * y + c * z + d == 0):
-        # print("Coplanar")
+    if a * x + b * y + c * z + d == 0:
         coplanar = True
     else:
-        # print("Not Coplanar")
         coplanar = False
     return coplanar
 
 
-def get_polygons_3_points():
-    triangles = get_or_create_values("three_nodes")
-    write_nodes_to_file("coplanar_polygons", triangles, "three_nodes")
+def generate_polygons_3_points():
+    triangles = get_values(global_variables.linestrings_folder, global_variables.three_nodes_file)
+    write_nodes_to_file(global_variables.coplanar_polygons_folder, triangles, global_variables.three_nodes_file)
     return triangles
 
 
-def get_collinear_polygons_4_points():
-    values = get_or_create_values("four_nodes")
+def generate_collinear_polygons_4_points():
+    values = get_values(global_variables.linestrings_folder, global_variables.four_nodes_file)
     squares = []
     for line in values:
         if are_coplanar(line):
             squares.append(line)
-    write_nodes_to_file("coplanar_polygons", squares, "four_nodes")
+    write_nodes_to_file(global_variables.coplanar_polygons_folder, squares, global_variables.four_nodes_file)
     return squares
 
 
-def get_collinear_polygons_5_points():
-    values = get_or_create_values("five_nodes")
+def generate_collinear_polygons_5_points():
+    values = get_values(global_variables.linestrings_folder, global_variables.five_nodes_file)
     pentagons = []
     for line in values:
         if are_coplanar([line[0], line[1], line[2], line[3]]) and are_coplanar([line[1], line[2], line[3], line[4]]):
             pentagons.append(line)
-    write_nodes_to_file("coplanar_polygons", pentagons, "five_nodes")
+    write_nodes_to_file(global_variables.coplanar_polygons_folder, pentagons, global_variables.five_nodes_file)
     return pentagons
 
 
