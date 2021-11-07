@@ -34,7 +34,7 @@ def create_linestrings_4():
 
 
 def create_linestrings_5():
-    values_5 = (global_variables.linestrings_folder, global_variables.five_nodes_file)
+    values_5 = get_values(global_variables.linestrings_folder, global_variables.five_nodes_file)
     selected_linestrings_5 = []
     for _ in range(0, global_variables.number_trials_linestrings):
         index = random.randint(0, len(values_5))
