@@ -86,17 +86,17 @@ def calculate_composition_tables(points, linestrings, polygons):
     n_entries_cols = len(polygons) + 1
     matrices = []
     col = 0
-    index = 0
     mat = np.empty((n_entries_rows, n_entries_cols), dtype=np.chararray)
     mat[0][0] = "A_B"
     for point in points:
         point = from_shapely(Point(point))
         for linestring in linestrings:
             col = 0
-            index = 0
             mat = np.empty((n_entries_rows, n_entries_cols), dtype=np.chararray)
             mat[0][0] = "A_B"
             linestring = from_shapely(LineString(linestring))  # AB
+            print("A =", point)
+            print("B =", linestring)
             mat[1][0] = get_relations_results(point, linestring)
             for poly in polygons:
                 col += 1
