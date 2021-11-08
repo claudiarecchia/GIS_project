@@ -1,5 +1,9 @@
 
-./trials_1
-./points
-./coplanar_polygons
-./linestrings
+trials_1/
+points/
+coplanar_polygons/
+linestrings/
+
+.DS_Store
+__pycache__/
+.idea/
