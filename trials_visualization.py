@@ -1,3 +1,7 @@
+"""
+    Visualizzazione grafica degli elementi Point, LineString, Polygon
+    identificati come campioni (trials)
+"""
 
 from shapely.geometry import *
 from pygeos import *

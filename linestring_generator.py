@@ -1,6 +1,6 @@
 """
-    Generatore di spezzate con 3 o 4 segmenti
-    Le spezzate non hanno necessità di essere coplanari
+    Generatore di spezzate con 2, 3 o 4 segmenti
+    Le spezzate non hanno necessità di essere complanari
 """
 from points_generator import get_points
 from csv_utilities import write_nodes_to_file

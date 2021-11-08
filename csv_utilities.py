@@ -1,5 +1,10 @@
+"""
+    Funzioni utili per tener traccia dei dataset generati
+    e per poter rendere gli esperimenti riproducibili, mantenendone memoria
+    in definiti files .csv, i cui nomi sono specificati all'interno del file
+    global_variables.py
+"""
 import csv
-
 
 
 def write_nodes_to_file(folder, nodes, file_name):

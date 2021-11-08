@@ -1,3 +1,11 @@
+"""
+    File contenente funzioni che vengono eseguite alla prima esecuzione
+    del programma su una macchina
+    Crea le cartelle e i files necessari da utilizzare come dataset
+    basandosi sui nomi presenti nel file global_variables.py
+    Se si vuole creare un nuovo dataset, sarà necessario cambiare
+    il valore della variabile trials_folder in global_variables.py
+"""
 
 from pathlib import Path
 import global_variables

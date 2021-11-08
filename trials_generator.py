@@ -1,3 +1,15 @@
+"""
+    Generazione degli elementi presi come campioni per gli esperimenti
+    Vengono selezionati rispettivamente:
+    - 10 punti dal dataset points/points.csv
+    - 3 linestrings dal dal dataset linestrings/three_nodes.csv
+    - 3 linestrings dal dal dataset linestrings/four_nodes.csv
+    - 3 linestrings dal dal dataset linestrings/five_nodes.csv
+    - 3 poligoni dal dal dataset coplanar_polygons/three_nodes.csv
+    - 3 poligoni dal dal dataset coplanar_polygons/four_nodes.csv
+    - 3 poligoni dal dal dataset coplanar_polygons/five_nodes.csv
+"""
+
 from linestring_generator import *
 import random
 from polygon_generator import *

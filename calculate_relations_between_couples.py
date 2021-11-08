@@ -2,6 +2,10 @@
     Avendo ottenuto i diversi oggetti trials
     Si procede con il confronto tra di essi, due a due
     per determinare infine la tabella di composizione
+    Si valuta inoltre se il set di relazioni considerato
+    (crosses, contains, disjoint, overlaps, touches, within, equals)
+    è JEPD, ovvero solamente una tra tali relazioni risulta essere vera tra
+    due elementi considerati
 """
 
 import global_variables

@@ -1,8 +1,8 @@
 """
     Generatore di poligoni in 3D
-    Triangoli, quadrati, pentagoni
-    Tre punti sono sempre coplanari
-    Per quadrati e pentagoni si utilizzerà una funzione capace di
+    Elementi con 3, 4 e 5 vertici
+    Tre punti sono sempre complanari
+    Per elementi con 4 e 5 vertici si utilizza una funzione capace di
     comprendere se 4 punti appartengono allo stesso piano
     https://www.geeksforgeeks.org/program-to-check-whether-4-points-in-a-3-d-plane-are-coplanar/
 """
