@@ -7,3 +7,6 @@ linestrings/
 .DS_Store
 __pycache__/
 .idea/
+
+main_pygeos.py
+pygeos_shapely.py
