@@ -10,12 +10,11 @@
     - 3 poligoni dal dal dataset coplanar_polygons/five_nodes.csv
 """
 
-from linestring_generator import *
 import random
-from polygon_generator import *
+from pygeos_and_shapely.polygon_generator import *
 from pygeos import *
 from shapely.geometry import *
-import global_variables
+from pygeos_and_shapely import global_variables
 
 
 def create_points():

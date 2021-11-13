@@ -1,14 +1,14 @@
 """
-    Generatore di poligoni in 3D
+    Generatore di poligoni in geometry3d
     Elementi con 3, 4 e 5 vertici
     Tre punti sono sempre complanari
     Per elementi con 4 e 5 vertici si utilizza una funzione capace di
     comprendere se 4 punti appartengono allo stesso piano
     https://www.geeksforgeeks.org/program-to-check-whether-4-points-in-a-3-d-plane-are-coplanar/
 """
-from csv_utilities import *
-from linestring_generator import *
-import global_variables
+from pygeos_and_shapely.csv_utilities import *
+from pygeos_and_shapely.linestring_generator import *
+from pygeos_and_shapely import global_variables
 
 
 def get_values(folder, filename):

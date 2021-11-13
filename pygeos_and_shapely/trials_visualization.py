@@ -8,15 +8,14 @@ from pygeos import *
 from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from mpl_toolkits.mplot3d.art3d import *
-from csv_utilities import *
-import global_variables
-
+from pygeos_and_shapely.csv_utilities import *
+from pygeos_and_shapely import global_variables
 
 linestrings = [global_variables.lin_3, global_variables.lin_4, global_variables.lin_5]
 polygons = [global_variables.pol_3, global_variables.pol_4, global_variables.pol_5]
 
 
-def get_figure_pints(pol_points):
+def get_figure_points(pol_points):
     x, y, z = [], [], []
     for element in pol_points:
         x.append(element[0])
@@ -48,7 +47,7 @@ def plot_point(point):
 def plot_linestring(points_line):
     line = from_shapely(LineString(points_line))
     print(line)
-    vertices = get_figure_pints(points_line)
+    vertices = get_figure_points(points_line)
     ax, fig = set_axes()
     fig.suptitle(line, fontsize=10)
     ax.add_collection3d(Line3DCollection(vertices))
@@ -58,7 +57,7 @@ def plot_linestring(points_line):
 def plot_polygon(points_line):
     line = from_shapely(Polygon(points_line))
     print(line)
-    vertices = get_figure_pints(points_line)
+    vertices = get_figure_points(points_line)
     ax, fig = set_axes()
     fig.suptitle(line, fontsize=10)
     ax.add_collection3d(Poly3DCollection(vertices))
@@ -75,12 +74,14 @@ for lin in linestrings:
     linestrings_strings = read_nodes_file(global_variables.trials_folder, lin)
     int_points = get_int_values(linestrings_strings)
     for points_line in int_points:
+
         plot_linestring(points_line)
 
 for pol in polygons:
     polys_strings = read_nodes_file(global_variables.trials_folder, pol)
     int_points = get_int_values(polys_strings)
     for points_line in int_points:
+        print(points_line)
         plot_polygon(points_line)
 
 

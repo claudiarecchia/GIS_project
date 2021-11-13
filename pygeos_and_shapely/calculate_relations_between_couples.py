@@ -8,8 +8,6 @@
     due elementi considerati
 """
 
-import global_variables
-from csv_utilities import *
 from shapely.geometry import *
 from pygeos import *
 import numpy as np

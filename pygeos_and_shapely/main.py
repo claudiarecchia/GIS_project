@@ -1,6 +1,5 @@
 
-from init_folders_and_files import *
-
+from pygeos_and_shapely.init_folders_and_files import *
 
 if __name__ == "__main__":
     create_folders()

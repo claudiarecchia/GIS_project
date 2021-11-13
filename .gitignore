@@ -1,12 +1,12 @@
 
-trials_1/
-points/
-coplanar_polygons/
-linestrings/
+pygeos_and_shapely/trials_1/
+pygeos_and_shapely/points/
+pygeos_and_shapely/coplanar_polygons/
+pygeos_and_shapely/linestrings/
 
 .DS_Store
 __pycache__/
 .idea/
 
-main_pygeos.py
-pygeos_shapely.py
+pygeos_and_shapely/main_pygeos.py
+pygeos_and_shapely/pygeos_shapely.py

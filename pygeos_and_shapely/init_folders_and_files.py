@@ -8,13 +8,9 @@
 """
 
 from pathlib import Path
-import global_variables
 import os
-from points_generator import generate_points
-from linestring_generator import *
-from polygon_generator import *
-from trials_generator import *
-from calculate_relations_between_couples import *
+from pygeos_and_shapely.points_generator import generate_points
+from pygeos_and_shapely.trials_generator import *
 
 
 def create_folders():

@@ -1,10 +1,10 @@
 """
     Generatore di tutte le combinazioni di punti
-    Considerando uno spazio 3D 2x2x2 e solamente con valori interi
+    Considerando uno spazio geometry3d 2x2x2 e solamente con valori interi
     ogni punto della terna può assumere valore 0,1,2
     Si generano quindi 3^3 = 27 punti
 """
-from csv_utilities import write_nodes_to_file, read_nodes_file, get_int_values
+from pygeos_and_shapely.csv_utilities import write_nodes_to_file, read_nodes_file, get_int_values
 
 
 def generate_points(plot_dimension, folder, filename):

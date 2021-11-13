@@ -2,10 +2,9 @@
     Generatore di spezzate con 2, 3 o 4 segmenti
     Le spezzate non hanno necessità di essere complanari
 """
-from points_generator import get_points
-from csv_utilities import write_nodes_to_file
-import os.path
-import global_variables
+from pygeos_and_shapely.points_generator import get_points
+from pygeos_and_shapely.csv_utilities import write_nodes_to_file
+from pygeos_and_shapely import global_variables
 
 
 def check_uniqueness(lst):
