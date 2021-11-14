@@ -491,6 +491,55 @@ class ConvexPolyhedron(GeoBody):
             if self.intersection(cp_2) == self.get_dimension():
                 pass
 
+    def polyhedron_interior(self):
+        """
+            If all the polygons' normals point to the outside it means that
+            building a little bit smaller ConvexPolyhedron, we'll consider just the
+            interior of self
+        """
+        if self._check_normal():
+            convex_polygons = self.convex_polygons
+            pol_copy = copy.deepcopy(self)
+            new_convex_plygons = []
+            for cp in convex_polygons:
+                new_points_convex_polygons = []
+                for point in cp.points:
+                    if self.check_interior_point(Point(point[0] - 0.01, point[1] - 0.01, point[2] - 0.01), polygon=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] - 0.01, point[1] - 0.01, point[2] - 0.01))
+                    elif self.check_interior_point(Point(point[0] + 0.01, point[1] - 0.01, point[2] - 0.01), polygon=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] + 0.01, point[1] - 0.01, point[2] - 0.01))
+                    elif self.check_interior_point(Point(point[0] + 0.01, point[1] + 0.01, point[2] - 0.01), polygon=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] + 0.01, point[1] + 0.01, point[2] - 0.01))
+                    elif self.check_interior_point(Point(point[0] + 0.01, point[1] + 0.01, point[2] + 0.01), polygon=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] + 0.01, point[1] + 0.01, point[2] + 0.01))
+                    elif self.check_interior_point(Point(point[0] - 0.01, point[1] + 0.01, point[2] - 0.01), polygon=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] - 0.01, point[1] + 0.01, point[2] - 0.01))
+                    elif self.check_interior_point(Point(point[0] - 0.01, point[1] - 0.01, point[2] + 0.01), polygon=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] - 0.01, point[1] - 0.01, point[2] + 0.01))
+                    elif self.check_interior_point(Point(point[0] - 0.01, point[1] + 0.01, point[2] + 0.01), polygon=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] - 0.01, point[1] + 0.01, point[2] + 0.01))
+                    elif self.check_interior_point(Point(point[0] + 0.01, point[1] - 0.01, point[2] + 0.01), polygon=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] + 0.01, point[1] - 0.01, point[2] + 0.01))
+
+                new_convex_plygons.append(ConvexPolygon(new_points_convex_polygons))
+
+            interior = ConvexPolyhedron((new_convex_plygons))
+            return interior
+
+    def check_interior_point(self, point, polygon=None):
+        """
+            returns True if the considered point is behind all faces of self
+        """
+        if polygon is None:
+            for convex_polygon in self.convex_polygons:
+                if Vector(point, convex_polygon.plane.p) * convex_polygon.plane.n < -get_eps():
+                    return False
+        else:
+            for convex_polygon in polygon.convex_polygons:
+                if Vector(point, convex_polygon.plane.p) * convex_polygon.plane.n < -get_eps():
+                    return False
+
+        return True
 
 Parallelepiped = ConvexPolyhedron.Parallelepiped
 Cone = ConvexPolyhedron.Cone
