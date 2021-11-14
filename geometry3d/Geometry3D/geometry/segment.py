@@ -9,7 +9,7 @@ from ..utils.constant import get_eps
 from ..utils.logger import get_main_logger
 import math
 import copy
-
+from ...global_variables import *
 
 class Segment(GeoBody):
     """
@@ -120,6 +120,66 @@ class Segment(GeoBody):
             Segments are one-dimensional objects
         """
         return 1
+
+    def get_interior(self):
+        start_end = [self.start_point, self.end_point]
+        points = []
+        for element in start_end:
+            if self.__contains__(Point(element[0] - toll, element[1] - toll, element[2] - toll)):
+                points.append(Point(element[0] - toll, element[1] - toll, element[2] - toll))
+            elif self.__contains__(Point(element[0] + toll, element[1] - toll, element[2] - toll)):
+                points.append(Point(element[0] + toll, element[1] - toll, element[2] - toll))
+            elif self.__contains__(Point(element[0] + toll, element[1] + toll, element[2] - toll)):
+                points.append(Point(element[0] + toll, element[1] + toll, element[2] - toll))
+            elif self.__contains__(Point(element[0] + toll, element[1] + toll, element[2] + toll)):
+                points.append(Point(element[0] + toll, element[1] + toll, element[2] + toll))
+            elif self.__contains__(Point(element[0] - toll, element[1] + toll, element[2] - toll)):
+                points.append(Point(element[0] - toll, element[1] + toll, element[2] - toll))
+            elif self.__contains__(Point(element[0] - toll, element[1] - toll, element[2] + toll)):
+                points.append(Point(element[0] - toll, element[1] - toll, element[2] + toll))
+            elif self.__contains__(Point(element[0] - toll, element[1] + toll, element[2] + toll)):
+                points.append(Point(element[0] - toll, element[1] + toll, element[2] + toll))
+            elif self.__contains__(Point(element[0] + toll, element[1] - toll, element[2] + toll)):
+                points.append(Point(element[0] + toll, element[1] - toll, element[2] + toll))
+            elif self.__contains__(Point(element[0] + toll, element[1], element[2])):
+                points.append(Point(element[0] + toll, element[1], element[2]))
+            elif self.__contains__(Point(element[0] - toll, element[1], element[2])):
+                points.append(Point(element[0] - toll, element[1], element[2]))
+            elif self.__contains__(Point(element[0] + toll, element[1] + toll, element[2])):
+                points.append(Point(element[0] + toll, element[1] + toll, element[2]))
+            elif self.__contains__(Point(element[0] - toll, element[1] + toll, element[2])):
+                points.append(Point(element[0] - toll, element[1] + toll, element[2]))
+            elif self.__contains__(Point(element[0] + toll, element[1] - toll, element[2])):
+                points.append(Point(element[0] + toll, element[1] - toll, element[2]))
+            elif self.__contains__(Point(element[0] - toll, element[1] - toll, element[2])):
+                points.append(Point(element[0] - toll, element[1] - toll, element[2]))
+            elif self.__contains__(Point(element[0] + toll, element[1], element[2] + toll)):
+                points.append(Point(element[0] + toll, element[1], element[2] + toll))
+            elif self.__contains__(Point(element[0] - toll, element[1] , element[2] + toll)):
+                points.append(Point(element[0] - toll, element[1], element[2] + toll))
+            elif self.__contains__(Point(element[0] + toll, element[1], element[2] - toll)):
+                points.append(Point(element[0] + toll, element[1], element[2] - toll))
+            elif self.__contains__(Point(element[0] - toll, element[1] , element[2] - toll)):
+                points.append(Point(element[0] - toll, element[1], element[2] - toll))
+            elif self.__contains__(Point(element[0], element[1] + toll, element[2] + toll)):
+                points.append(Point(element[0], element[1] + toll, element[2] + toll))
+            elif self.__contains__(Point(element[0], element[1] - toll, element[2] + toll)):
+                points.append(Point(element[0], element[1] - toll, element[2] + toll))
+            elif self.__contains__(Point(element[0], element[1] + toll, element[2] - toll)):
+                points.append(Point(element[0], element[1] + toll, element[2] - toll))
+            elif self.__contains__(Point(element[0], element[1] - toll, element[2] - toll)):
+                points.append(Point(element[0], element[1] - toll, element[2] - toll))
+            elif self.__contains__(Point(element[0], element[1] + toll, element[2])):
+                points.append(Point(element[0], element[1] + toll, element[2]))
+            elif self.__contains__(Point(element[0], element[1] - toll, element[2])):
+                points.append(Point(element[0], element[1] - toll, element[2]))
+            elif self.__contains__(Point(element[0], element[1], element[2] + toll)):
+                points.append(Point(element[0], element[1], element[2] + toll))
+            elif self.__contains__(Point(element[0], element[1], element[2] - toll)):
+                points.append(Point(element[0], element[1], element[2] - toll))
+
+        new_segment = Segment(points[0], points[1])
+        print(new_segment)
 
 
 __all__ = ("Segment",)

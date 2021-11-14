@@ -185,27 +185,43 @@ print(cp_blue)
 interior = cp_blue.polyhedron_interior()
 print(interior)
 print(cp_blue)
-print("Contains point: ", interior.__contains__(Segment(Point(0, 0.6, 0), Point(0, 1, 0))))
-print("Contains point: ", interior.__contains__(Segment(Point(1, 0.6, 0), Point(1, 1, 0))))
-print("Contains point: ", interior.__contains__(Point(2, 0.6, 0)))
-print("Contains point: ", cp_blue.__contains__(Point(2, 0.6, 0)))
-print("Contains point: ", interior.__contains__(Point(0, 0, 0)))
-print("Contains point: ", cp_blue.__contains__(Point(0, 0, 0)))
-print("Contains point: ", interior.__contains__(Point(0, 0.6, 0)))
+print("Interior contains Segment(0, 0.6, 0),(0, 1, 0)): ", interior.__contains__(Segment(Point(0, 0.6, 0), Point(0, 1, 0))))
+print("Interior contains Segment(1, 0.6, 0),(1, 1, 0)): ", interior.__contains__(Segment(Point(1, 0.6, 0), Point(1, 1, 0))))
+print("Blue polyhedron contains Segment(1, 0.6, 0),(1, 1, 0)): ", cp_blue.__contains__(Segment(Point(1, 0.6, 0), Point(1, 1, 0))))
+print("Interior contains point (0, 0, 0): ", interior.__contains__(Point(0, 0, 0)))
+print("Blue polyhedron contains point (0, 0, 0): ", cp_blue.__contains__(Point(0, 0, 0)))
+print("Interior contains point (0, 0.6, 0): ", interior.__contains__(Point(0, 0.6, 0)))
 r.add((interior, 'black', 1), normal_length=0)
-# print("dimension:", intersection_b_o.get_dimension())
+r.add((cp_violet.polyhedron_interior(), 'black', 1), normal_length=0)
+
+import copy
+
+red_pol = copy.deepcopy(cp_blue)
+print("cross :", cp_blue.convex_polyhedron_crosses(red_pol))
+
+vector = Vector(Point(0, 0, 0), Point(8, 0, 0))
+print(vector)
+vector = vector.__sub__(Vector(1, 0, 0))
+print(vector)
+
+segment = Segment(Point(0,0,0), Point(2,2,2))
+v = Vector(segment.start_point, segment.end_point)
+print(v)
+
+segment2 = Segment(Point(2, 2, 2), Point(0, 0, 0))
+v = Vector(segment2.start_point, segment2.end_point)
+print(v)
+
+segment2 = Segment(Point(0,0,0), Point(2, 0, 0))
+segment2.get_interior()
+segment = Segment(Point(0,0,0), Point(2,2,2))
+segment.get_interior()
+
+
+
+
+
 r.show()
 
-# print(par_2.__contains__(pa))
-# print(par_2.__contains__(Point(-1, -1, 0)))
 
-# cph.move(x_unit_vector())
-# print(cph)
-# r.add((cph, 'y', 1), normal_length=0)
-# r.add((cph.move(z_unit_vector()), 'g', 1), normal_length=0)
-# r.add((cph.move(y_unit_vector()), 'r', 1), normal_length=0)
-
-# r.add((cph1, 'r', 1), normal_length=0.5)
-# r.add((cph2, 'g', 1), normal_length=0)
-# r.add((cph4, 'y', 3), normal_length=0.5)
 

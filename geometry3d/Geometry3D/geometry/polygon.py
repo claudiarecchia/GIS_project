@@ -8,7 +8,7 @@ from .segment import Segment
 from .plane import Plane
 from ..utils.constant import *
 from ..utils.vector import x_unit_vector,y_unit_vector
-
+from ...global_variables import *
 import copy
 import math
 
@@ -345,6 +345,48 @@ class ConvexPolygon(GeoBody):
             ConvexPolgons are two-dimensional objects
         """
         return 2
+
+    def polygon_interior(self):
+        """
+            If all the polygons' normals point to the outside it means that
+            building a little bit smaller ConvexPolyhedron, we'll consider just the
+            interior of self
+        """
+        pol_copy = copy.deepcopy(self)
+        new_points_convex_polygons = []
+        for point in self.points:
+            if self.check_interior_point(Point(point[0] - toll, point[1] - toll, point[2] - toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2] - toll))
+            elif self.check_interior_point(Point(point[0] + toll, point[1] - toll, point[2] - toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2] - toll))
+            elif self.check_interior_point(Point(point[0] + toll, point[1] + toll, point[2] - toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2] - toll))
+            elif self.check_interior_point(Point(point[0] + toll, point[1] + toll, point[2] + toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2] + toll))
+            elif self.check_interior_point(Point(point[0] - toll, point[1] + toll, point[2] - toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2] - toll))
+            elif self.check_interior_point(Point(point[0] - toll, point[1] - toll, point[2] + toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2] + toll))
+            elif self.check_interior_point(Point(point[0] - toll, point[1] + toll, point[2] + toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2] + toll))
+            elif self.check_interior_point(Point(point[0] + toll, point[1] - toll, point[2] + toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2] + toll))
+
+        convex_polygon_interior = ConvexPolygon(new_points_convex_polygons)
+        return convex_polygon_interior
+
+    def check_interior_point_polygon(self, point, polygon=None):
+        """
+            returns True if the considered point is behind all faces of self
+        """
+        if polygon is None:
+            if Vector(point, self.plane.p) * self.plane.n < -get_eps():
+                return False
+        else:
+            if Vector(point, polygon.plane.p) * polygon.plane.n < -get_eps():
+                return False
+
+        return True
 
 
 Parallelogram = ConvexPolygon.Parallelogram
