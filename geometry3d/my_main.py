@@ -220,19 +220,21 @@ print("Interior_2 contiene punto (2,2,2): ", interior2.__contains__(Point(2,2,2)
 print(cp_blue.__interior__())
 print(segment2.__interior__())
 
-
+print("\n")
 a = Point(0, 0, 0.5)
 b = Point(2, 0, 0.5)
 c = Point(2, 2, 0.5)
 d = Point(0, 2, 0.5)
 plane = ConvexPolygon((a, b, c, d))
+print("Piano: ", plane)
+print("Interior del piano: ", plane.__interior__())
 r.add((plane, 'y', 1), normal_length=0)
 r.add((plane.__interior__(), 'black', 1), normal_length=0)
-print(plane.__interior__().__contains__(Point(1, 0, 0.5)))
-print(plane.__crosses__(cp_blue))
-print(plane.__interior__())
-print(plane.__crosses__(cp_violet))
-print(cp_violet.__crosses__(plane))
+
+print("Interior del piano contains Point(1, 0 , 0.5): ", plane.__interior__().__contains__(Point(1, 0, 0.5)))
+print("Piano crosses poliedro blu: ", plane.__crosses__(cp_blue))
+print("Piano crosses poliedro viola: ", plane.__crosses__(cp_violet))
+print("Poliedro viola crosses piano: ", cp_violet.__crosses__(plane))
 r.show()
 
 

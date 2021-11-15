@@ -348,9 +348,7 @@ class ConvexPolygon(GeoBody):
 
     def __interior__(self):
         """
-            If all the polygons' normals point to the outside it means that
-            building a little bit smaller ConvexPolygon, we'll consider just the
-            interior of self
+            :return a ConvexPolygon: the interior of self
         """
         pol_copy = copy.deepcopy(self)
         new_points_convex_polygons = []
@@ -371,22 +369,74 @@ class ConvexPolygon(GeoBody):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2] + toll))
             elif self.check_interior_point_polygon(Point(point[0] + toll, point[1] - toll, point[2] + toll), polygon=pol_copy):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2] + toll))
+            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1], point[2]), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] + toll, point[1], point[2]))
+            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1], point[2]), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] - toll, point[1], point[2]))
+            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1] + toll, point[2]), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2]))
+            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] + toll, point[2]), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2]))
+            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1] - toll, point[2]), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2]))
+            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] - toll, point[2]), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2]))
+            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1], point[2] + toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] + toll, point[1], point[2] + toll))
+            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] , point[2] + toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] - toll, point[1], point[2] + toll))
+            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1], point[2] - toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] + toll, point[1], point[2] - toll))
+            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] , point[2] - toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0] - toll, point[1], point[2] - toll))
+            elif self.check_interior_point_polygon(Point(point[0], point[1] + toll, point[2] + toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0], point[1] + toll, point[2] + toll))
+            elif self.check_interior_point_polygon(Point(point[0], point[1] - toll, point[2] + toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0], point[1] - toll, point[2] + toll))
+            elif self.check_interior_point_polygon(Point(point[0], point[1] + toll, point[2] - toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0], point[1] + toll, point[2] - toll))
+            elif self.check_interior_point_polygon(Point(point[0], point[1] - toll, point[2] - toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0], point[1] - toll, point[2] - toll))
+            elif self.check_interior_point_polygon(Point(point[0], point[1] + toll, point[2]), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0], point[1] + toll, point[2]))
+            elif self.check_interior_point_polygon(Point(point[0], point[1] - toll, point[2]), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0], point[1] - toll, point[2]))
+            elif self.check_interior_point_polygon(Point(point[0], point[1], point[2] + toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0], point[1], point[2] + toll))
+            elif self.check_interior_point_polygon(Point(point[0], point[1], point[2] - toll), polygon=pol_copy):
+                new_points_convex_polygons.append(Point(point[0], point[1], point[2] - toll))
 
         convex_polygon_interior = ConvexPolygon(new_points_convex_polygons)
         return convex_polygon_interior
 
     def check_interior_point_polygon(self, point, polygon=None):
         """
-            returns True if the considered point is behind all faces of self
+            returns True if the considered point is inside self and
+            the point is not on the boundary of the polygon
         """
         if polygon is None:
-            if Vector(point, self.plane.p) * self.plane.n < -get_eps():
-                return False
+            points = self.points
+            segments = []
+            for i in range(len(points)):
+                index = (i + 1) % len(points)
+                segments.append(Segment((points[i]), (points[index])))
+            for s in segments:
+                if s.__contains__(point):
+                    return False
+            if self.__contains__(point):
+                return True
         else:
-            if Vector(point, polygon.plane.p) * polygon.plane.n < -get_eps():
-                return False
+            points = polygon.points
+            segments = []
+            for i in range(len(points)):
+                index = (i + 1) % len(points)
+                segments.append(Segment((points[i]), (points[index])))
+            for s in segments:
+                if s.__contains__(point):
+                    return False
+            if polygon.__contains__(point):
+                return True
 
-        return True
 
     def __crosses__(self, obj):
         """
