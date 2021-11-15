@@ -182,7 +182,7 @@ print("Blue intersection violet: ", intersection_b_v)
 print("Blue disjoint violet: ", cp_blue.convex_polyhedron_disjoint(cp_violet))
 
 print(cp_blue)
-interior = cp_blue.polyhedron_interior()
+interior = cp_blue.__interior__()
 print(interior)
 print(cp_blue)
 print("Interior contains Segment(0, 0.6, 0),(0, 1, 0)): ", interior.__contains__(Segment(Point(0, 0.6, 0), Point(0, 1, 0))))
@@ -192,35 +192,47 @@ print("Interior contains point (0, 0, 0): ", interior.__contains__(Point(0, 0, 0
 print("Blue polyhedron contains point (0, 0, 0): ", cp_blue.__contains__(Point(0, 0, 0)))
 print("Interior contains point (0, 0.6, 0): ", interior.__contains__(Point(0, 0.6, 0)))
 r.add((interior, 'black', 1), normal_length=0)
-r.add((cp_violet.polyhedron_interior(), 'black', 1), normal_length=0)
+r.add((cp_violet.__interior__(), 'black', 1), normal_length=0)
 
 import copy
 
 red_pol = copy.deepcopy(cp_blue)
-print("cross :", cp_blue.convex_polyhedron_crosses(red_pol))
+print("cross :", cp_blue.__crosses__(red_pol))
 
-vector = Vector(Point(0, 0, 0), Point(8, 0, 0))
-print(vector)
-vector = vector.__sub__(Vector(1, 0, 0))
-print(vector)
-
-segment = Segment(Point(0,0,0), Point(2,2,2))
-v = Vector(segment.start_point, segment.end_point)
-print(v)
-
-segment2 = Segment(Point(2, 2, 2), Point(0, 0, 0))
-v = Vector(segment2.start_point, segment2.end_point)
-print(v)
 
 segment2 = Segment(Point(0,0,0), Point(2, 0, 0))
-segment2.get_interior()
+
+interior2 = segment2.__interior__()
+print("Segmento_1: ", segment2)
+print("Interior_1: ", interior2)
+
 segment = Segment(Point(0,0,0), Point(2,2,2))
-segment.get_interior()
+interior = segment.__interior__()
+print("Segmento_2: ", segment)
+print("Interior_2: ", interior)
+print("Interior_2 contiene punto (0,0,0): ", interior2.__contains__(Point(0,0,0)))
+print("Interior_2 contiene punto (2,2,2): ", interior2.__contains__(Point(2,2,2)))
+# render = Renderer()
+# render.add((segment2, 'b', 1), normal_length=0)
+# render.add((interior2, 'r', 1), normal_length=0)
+# render.show()
+
+print(cp_blue.__interior__())
+print(segment2.__interior__())
 
 
-
-
-
+a = Point(0, 0, 0.5)
+b = Point(2, 0, 0.5)
+c = Point(2, 2, 0.5)
+d = Point(0, 2, 0.5)
+plane = ConvexPolygon((a, b, c, d))
+r.add((plane, 'y', 1), normal_length=0)
+r.add((plane.__interior__(), 'black', 1), normal_length=0)
+print(plane.__interior__().__contains__(Point(1, 0, 0.5)))
+print(plane.__crosses__(cp_blue))
+print(plane.__interior__())
+print(plane.__crosses__(cp_violet))
+print(cp_violet.__crosses__(plane))
 r.show()
 
 

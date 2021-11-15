@@ -121,7 +121,10 @@ class Segment(GeoBody):
         """
         return 1
 
-    def get_interior(self):
+    def __interior__(self):
+        """
+        :return: A segment object: the interior of a segment
+        """
         start_end = [self.start_point, self.end_point]
         points = []
         for element in start_end:
@@ -179,7 +182,41 @@ class Segment(GeoBody):
                 points.append(Point(element[0], element[1], element[2] - toll))
 
         new_segment = Segment(points[0], points[1])
-        print(new_segment)
+        return new_segment
 
+
+    def __crosses__(self, obj):
+        """
+            **Input:**
+
+            - self: a Segment
+            - obj: another object (except Point)
+
+            **Output:**
+            - Whether the polyhedron self crosses cp_2
+            - The dimension of self and obj must be different
+            - They have some but not all interior points in common, and the dimension of
+            the intersection is less than that of at least one of them
+            source: https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10
+        """
+        if self.__eq__(obj) or isinstance(obj, Point):
+            return False
+
+        # The dimension of self and obj must be different (except by line/line inputs)
+        if self.get_dimension() == obj.get_dimension() and not isinstance(obj, Segment):
+            return False
+
+        interior_1 = self.__interior__()
+        interior_2 = obj.__interior__()
+
+        # They have some but not all interior points in common
+        if interior_1.__eq__(interior_2):
+            return False
+
+        # the dimension of the intersection is less than that of at least one of them
+        if self.intersection(obj).get_dimension() < self.get_dimension() or self.intersection(obj).get_dimension() < obj.get_dimension():
+            return True
+        else:
+            return False
 
 __all__ = ("Segment",)

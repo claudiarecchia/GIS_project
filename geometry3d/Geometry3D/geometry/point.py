@@ -101,6 +101,12 @@ class Point(object):
         """
         return 0
 
+    def __interior__(self):
+        """
+            The interior of a point is the point itself
+        """
+        return self
+
 
 origin = Point.origin
 
