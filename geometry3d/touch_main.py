@@ -1,6 +1,10 @@
 from geometry3d.Geometry3D import *
 import copy
-
+"""
+Touch is a symmetric relation
+It returns True if the only points shared between self and obj are on the
+boundary of self and obj
+"""
 
 #  ConvexPolyhedrons
 a = origin()

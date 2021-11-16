@@ -94,6 +94,9 @@ class Point(object):
         """Return the distance between self and other"""
         return math.sqrt((self.x -other.x) ** 2 + (self.y -other.y) ** 2 + (self.z -other.z) ** 2)
 
+    """
+        Added functions for Point objects
+    """
     def get_dimension(self):
         """
             Added function
@@ -101,22 +104,82 @@ class Point(object):
         """
         return 0
 
+    # CLARIFY il boundary di un punto è il punto stesso? (per l'operatore touch è necessario che sia boundary)
+    #   perchè anche interior è il punto stesso
+    def __boundary__(self):
+        """
+            Added function
+            :return The boundary of a point: the point itself
+        """
+        return self
+
     def __interior__(self):
         """
+            Added function
             The interior of a point is the point itself
         """
         return self
 
+    def __disjoint__(self, obj):
+        """
+            Added function
+            **Input:**
+            - self: a Point
+            - obj: another object
+
+            **Output:**
+            - Whether the point self disjoints obj
+        """
+        if isinstance(obj, Point):
+            if not self.__eq__(obj):
+                return False
+            return True
+
+        elif obj.__contains__(self):
+            return False
+        return True
+
+    def __touches__(self, obj):
+        """
+            Added function
+            **Input:**
+            - self: a Point
+            - obj: another object
+
+            **Output:**
+            - Whether the point self touches obj
+            - It returns True if the only points shared between self and obj are on the
+                boundary of self and obj
+            - Can not compute in point/point case
+                source: https://www.researchgate.net/publication/221471671_A_Small_Set_of_Formal_Topological_Relationships_Suitable_for_End-User_Interaction
+        """
+        if not isinstance(obj, Point):
+            self_boundary = self.__boundary__()
+            cp_2_boundary = obj.__boundary__()
+            intersection = obj.intersection(self)  # intersection is a symmetric operation
+            if intersection:
+                if isinstance(intersection, list):
+                    for point in intersection:
+                        if point != self_boundary or point not in cp_2_boundary:
+                            return False
+                    return True
+                elif isinstance(intersection, Point):
+                    if intersection != self_boundary or intersection not in cp_2_boundary:
+                        return False
+                return True
+        return False
+
     def __within__(self, obj):
         """
-        **Input:**
+            Added function
+            **Input:**
 
-        - self: a Point
-        - obj: another object
+            - self: a Point
+            - obj: another object
 
-        **Output:**
-        - Whether the point self is within obj and
-            self!=obj (within - equals)
+            **Output:**
+            - Whether the point self is within obj and
+                self!=obj (within - equals)
         """
         if self.get_dimension() == obj.get_dimension():
             if obj.__eq__(self):  # self!=obj (within - equals)
@@ -143,55 +206,22 @@ class Point(object):
         else:
             return False
 
-    def __disjoint__(self, obj):
-        """
-        **Input:**
-        - self: a Point
-        - obj: another object
-
-        **Output:**
-        - Whether the point self disjoints obj
-        """
-        if isinstance(obj, Point):
-            if not self.__eq__(obj):
-                return False
-            return True
-
-        elif obj.__contains__(self):
-            return False
-        return True
-
-    def __boundary__(self):
-        return self
-
-    def __touches__(self, obj):
-        """
-        **Input:**
-        - self: a Point
-        - obj: another object
-
-        **Output:**
-        - Whether the point self touches obj
-        - It returns True if the only points shared between self and obj are on the
-            boundary of self and obj
-        - Can not compute in point/point case
-            source: https://www.researchgate.net/publication/221471671_A_Small_Set_of_Formal_Topological_Relationships_Suitable_for_End-User_Interaction
-        """
-        if not isinstance(obj, Point):
-            self_boundary = self.__boundary__()
-            cp_2_boundary = obj.__boundary__()
-            intersection = obj.intersection(self)  # intersection is a symmetric operation
-            if intersection:
-                if isinstance(intersection, list):
-                    for point in intersection:
-                        if point != self_boundary or point not in cp_2_boundary:
-                            return False
-                    return True
-                elif isinstance(intersection, Point):
-                    if intersection != self_boundary or intersection not in cp_2_boundary:
-                        return False
-                return True
-        return False
+    # CLARIFY: un punto deve avere il metodo __overlaps__?
+    #   restituirà un valore positivo quando sdelf EQ obj
+    #   quindi il risultato è uguale alla relazione EQ
+    # def __overlaps__(self, obj):
+    #     """
+    #     **Input:**
+    #     - self: a Point
+    #     - obj: another object
+    #
+    #     **Output:**
+    #     - Whether the point self touches obj
+    #     - It returns True if obj equals self
+    #     """
+    #     if self.__eq__(obj):
+    #         return True
+    #     return False
 
 
 origin = Point.origin

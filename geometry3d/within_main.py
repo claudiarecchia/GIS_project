@@ -1,5 +1,8 @@
 from geometry3d.Geometry3D import *
-
+"""
+Whether self is within obj and self!=obj (within - equals)
+self lies in the interior of obj (https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10)
+"""
 #  ConvexPolyhedrons
 a = origin()
 b = Point(1, 0, 0)

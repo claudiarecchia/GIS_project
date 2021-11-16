@@ -1,15 +1,14 @@
 """Polyhedron Module"""
+import copy
+
 from .body import GeoBody
-from .polygon import ConvexPolygon,Parallelogram,Circle,get_circle_point_list
 from .point import Point
-from .line import Line
-from .segment import Segment
-from .plane import Plane
+from .polygon import ConvexPolygon, Parallelogram, Circle, get_circle_point_list
 from .pyramid import Pyramid
-from ..utils.vector import Vector,x_unit_vector,y_unit_vector,z_unit_vector
+from .segment import Segment
 from ..utils.constant import *
 from ..utils.logger import get_main_logger
-import copy
+from ..utils.vector import Vector, z_unit_vector
 from ...global_variables import *
 
 
@@ -252,7 +251,11 @@ class ConvexPolyhedron(GeoBody):
 
         **Output:**
 
-        - Whether the polyhedron contains the point
+        - Whether the polyhedron self contains:
+            - the point
+            - the segment
+            - the convexPolygon
+            - the convexPolyhedron
         """
         if isinstance(other, Point):
             for polygon in self.convex_polygons:
@@ -361,7 +364,6 @@ class ConvexPolyhedron(GeoBody):
             v += pyramid.volume()
         return v
 
-
     """
         Added functions for ConvexPolyhedron objects
     """
@@ -373,18 +375,143 @@ class ConvexPolyhedron(GeoBody):
         """
         return 3
 
+    def __boundary__(self, other=None):
+        """
+            Added function
+            **Input:**
+
+            - self: a ConvexPolyhedron
+            - other: a ConvexPolyhedron (optional)
+
+            **Output:**
+            - The boundary or self or other
+        """
+        boundary = []
+        if other is None:
+            b = self.convex_polygons
+        else:
+            b = other.convex_polygons
+        for polygon in b:
+            for point in polygon.points:
+                boundary.append(point)
+        return boundary
+
+    def __interior__(self):
+        """
+            Added function
+            If all the polyhedrons' normals point to the outside it means that
+            building a little bit smaller ConvexPolyhedron, we'll consider just the
+            interior of self
+        """
+        if self._check_normal():
+            convex_polygons = self.convex_polygons
+            pol_copy = copy.deepcopy(self)
+            new_convex_plygons = []
+            for cp in convex_polygons:
+                new_points_convex_polygons = []
+                for point in cp.points:
+                    if self.check_interior_point(Point(point[0] - toll, point[1] - toll, point[2] - toll),
+                                                 polyhedron=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2] - toll))
+                    elif self.check_interior_point(Point(point[0] + toll, point[1] - toll, point[2] - toll),
+                                                   polyhedron=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2] - toll))
+                    elif self.check_interior_point(Point(point[0] + toll, point[1] + toll, point[2] - toll),
+                                                   polyhedron=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2] - toll))
+                    elif self.check_interior_point(Point(point[0] + toll, point[1] + toll, point[2] + toll),
+                                                   polyhedron=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2] + toll))
+                    elif self.check_interior_point(Point(point[0] - toll, point[1] + toll, point[2] - toll),
+                                                   polyhedron=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2] - toll))
+                    elif self.check_interior_point(Point(point[0] - toll, point[1] - toll, point[2] + toll),
+                                                   polyhedron=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2] + toll))
+                    elif self.check_interior_point(Point(point[0] - toll, point[1] + toll, point[2] + toll),
+                                                   polyhedron=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2] + toll))
+                    elif self.check_interior_point(Point(point[0] + toll, point[1] - toll, point[2] + toll),
+                                                   polyhedron=pol_copy):
+                        new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2] + toll))
+
+                new_convex_plygons.append(ConvexPolygon(new_points_convex_polygons))
+
+            interior = ConvexPolyhedron((new_convex_plygons))
+            return interior
+
+    def check_interior_point(self, point, polyhedron=None):
+        """
+            Added function
+            returns True if the considered point is behind all faces of self
+            and the point does not belong to the boundary of the polyhedron
+        """
+        if polyhedron is None:
+            for convex_polygon in self.convex_polygons:
+                if Vector(point, convex_polygon.plane.p) * convex_polygon.plane.n < -get_eps() or point in self.__boundary__():
+                    return False
+        else:
+            for convex_polygon in polyhedron.convex_polygons:
+                if Vector(point, convex_polygon.plane.p) * convex_polygon.plane.n < -get_eps() or point in self.__boundary__():
+                    return False
+        return True
+
+    # def check_interior_point(self, point):
+    #     """
+    #         Added function
+    #         returns True if the considered point is behind all faces of self
+    #         and the point does not belong to the boundary of the polyhedron
+    #     """
+    #     for convex_polygon in self.convex_polygons:
+    #         if Vector(point, convex_polygon.plane.p) * convex_polygon.plane.n < -get_eps() or point in self.__boundary__():
+    #             return False
+    #     return True
+
+    def __crosses__(self, obj):
+        """
+            Added function
+            **Input:**
+
+            - self: a ConvexPolyhedron
+            - obj: another object (except Point)
+
+            **Output:**
+            - Whether the polyhedron self crosses obj
+            - The dimension of self and obj must be different
+            - They have some but not all interior points in common, and the dimension of
+            the intersection is less than that of at least one of them
+            source: https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10
+        """
+        # The dimension of self and obj must be different
+        if self.get_dimension() == obj.get_dimension() or self.__eq__(obj) or isinstance(obj, Point):
+            return False
+
+        interior_1 = self.__interior__()
+        interior_2 = obj.__interior__()
+
+        # They have some but not all interior points in common
+        if interior_1.__eq__(interior_2):
+            return False
+
+        # the dimension of the intersection is less than that of at least one of them
+        if self.intersection(obj).get_dimension() < self.get_dimension() or self.intersection(obj).get_dimension() < obj.get_dimension():
+            return True
+        else:
+            return False
+
     def convex_polyhedron_contains(self, cp_2):
         """
-        **Input:**
+            Added function
+            **Input:**
 
-        - self: a ConvexPolyhedron
-        - cp_2: a ConvexPolyhedron
+            - self: a ConvexPolyhedron
+            - cp_2: a ConvexPolyhedron
 
-        **Output:**
-        - Whether the polyhedron self contains the polyhedron cp_2 and
-            self!=cp_2 (contains - equals)
+            **Output:**
+            - Whether the polyhedron self contains the polyhedron cp_2 and
+                self!=cp_2 (contains - equals)
 
-        convex_polyhedron_contains(a, b) = convex_polyhedron_within(b, a)
+            convex_polyhedron_contains(a, b) = convex_polyhedron_within(b, a)
         """
         result = True
         polygons = cp_2.convex_polygons
@@ -395,59 +522,69 @@ class ConvexPolyhedron(GeoBody):
             result = False
         return result
 
-    def __within__(self, obj):
-        """
-        **Input:**
-
-        - self: a ConvexPolyhedron
-        - obj: another object
-
-        **Output:**
-        - Whether the polyhedron self is within obj and
-            self!=obj (within - equals)
-        """
-
-        if self.get_dimension() == obj.get_dimension():
-            if obj.__eq__(self):  # self!=obj (within - equals)
-                return False
-
-            polygons = self.convex_polygons
-            for pol in polygons:
-                if not obj.__contains__(pol):
-                    return False
-                return True
-
-        # objects don't have the same dimension
-        # but a convexPolyhedron can't be contained in a smaller object
-        else:
-            return False
-
-
     def __disjoint__(self, obj):
         """
-        **Input:**
-        - self: a ConvexPolyhedron
-        - obj: another object
+            Added function
+            **Input:**
+            - self: a ConvexPolyhedron
+            - obj: another object
 
-        **Output:**
-        - Whether the polyhedron self disjoints obj
+            **Output:**
+            - Whether the polyhedron self disjoints obj
         """
         if self.intersection(obj) is None:
             return True
         else:
             return False
 
+    def __overlaps__(self, cp_2):
+        """
+            Added function
+           **Input:**
+
+           - self: a ConvexPolyhedron
+           - obj: another ConvexPolyhedron
+
+           **Output:**
+           - Whether the polyhedron self overlaps s2
+           - The dimension of self and obj must be the same
+           - They have some but not all points in common, they have the same dimension,
+            and the intersection of the interiors of the two geometries has the same dimension
+            as the geometries themselves
+            source: https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10
+       """
+        # The dimension of self and obj must be the same
+        # They have some but not all points in common
+        if self.get_dimension() != cp_2.get_dimension() or self.__eq__(cp_2):
+            return False
+
+        interior_1 = self.__interior__()
+        interior_2 = cp_2.__interior__()
+
+        # the intersection of the interiors of the two geometries has the same dimension
+        # as the geometries themselves
+        if interior_1.intersection(interior_2) and interior_1.intersection(interior_2):
+            if interior_1.intersection(interior_2).get_dimension() != self.get_dimension() or \
+                    interior_1.intersection(interior_2).get_dimension() != cp_2.get_dimension():
+                return False
+            else:
+                return True
+        # otherwise the intersection is None
+        else:
+            return False
+
     def __touches__(self, obj):
         """
-        **Input:**
+            Added function
+            **Input:**
 
-        - self: a ConvexPolyhedron
-        - obj: another object
+            - self: a ConvexPolyhedron
+            - obj: another object
 
-        **Output:**
-        - Whether the polyhedron self touches obj
-        - It returns True if the only points shared between self and obj are on the
-            boundary of self and obj
+            **Output:**
+            - Whether the polyhedron self touches obj
+            - It returns True if the only points shared between self and obj are on the
+                boundary of self and obj
         """
         self_boundary = self.__boundary__()
         cp_2_boundary = obj.__boundary__()
@@ -482,141 +619,34 @@ class ConvexPolyhedron(GeoBody):
                     return True
         return False
 
-    def __boundary__(self, other=None):
+    def __within__(self, obj):
         """
-        **Input:**
-
-        - self: a ConvexPolyhedron
-        - other: a ConvexPolyhedron (optional)
-
-        **Output:**
-        - The boundary or self or other
-        """
-        boundary = []
-        if other is None:
-            b = self.convex_polygons
-        else:
-            b = other.convex_polygons
-        for polygon in b:
-            for point in polygon.points:
-                boundary.append(point)
-        return boundary
-
-    def __crosses__(self, obj):
-        """
+            Added function
             **Input:**
 
             - self: a ConvexPolyhedron
-            - obj: another object (except Point)
+            - obj: another object
 
             **Output:**
-            - Whether the polyhedron self crosses s2
-            - The dimension of self and obj must be different
-            - They have some but not all interior points in common, and the dimension of
-            the intersection is less than that of at least one of them
-            source: https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10
+            - Whether the polyhedron self is within obj and
+                self!=obj (within - equals)
         """
-        # The dimension of self and obj must be different
-        if self.get_dimension() == obj.get_dimension() or self.__eq__(obj) or isinstance(obj, Point):
-            return False
 
-        interior_1 = self.__interior__()
-        interior_2 = obj.__interior__()
-
-        # They have some but not all interior points in common
-        if interior_1.__eq__(interior_2):
-            return False
-
-        # the dimension of the intersection is less than that of at least one of them
-        if self.intersection(obj).get_dimension() < self.get_dimension() or self.intersection(obj).get_dimension() < obj.get_dimension():
-            return True
-        else:
-            return False
-
-    def __interior__(self):
-        """
-            If all the polyhedrons' normals point to the outside it means that
-            building a little bit smaller ConvexPolyhedron, we'll consider just the
-            interior of self
-        """
-        if self._check_normal():
-            convex_polygons = self.convex_polygons
-            pol_copy = copy.deepcopy(self)
-            new_convex_plygons = []
-            for cp in convex_polygons:
-                new_points_convex_polygons = []
-                for point in cp.points:
-                    if self.check_interior_point(Point(point[0] - toll, point[1] - toll, point[2] - toll), polyhedron=pol_copy):
-                        new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2] - toll))
-                    elif self.check_interior_point(Point(point[0] + toll, point[1] - toll, point[2] - toll), polyhedron=pol_copy):
-                        new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2] - toll))
-                    elif self.check_interior_point(Point(point[0] + toll, point[1] + toll, point[2] - toll), polyhedron=pol_copy):
-                        new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2] - toll))
-                    elif self.check_interior_point(Point(point[0] + toll, point[1] + toll, point[2] + toll), polyhedron=pol_copy):
-                        new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2] + toll))
-                    elif self.check_interior_point(Point(point[0] - toll, point[1] + toll, point[2] - toll), polyhedron=pol_copy):
-                        new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2] - toll))
-                    elif self.check_interior_point(Point(point[0] - toll, point[1] - toll, point[2] + toll), polyhedron=pol_copy):
-                        new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2] + toll))
-                    elif self.check_interior_point(Point(point[0] - toll, point[1] + toll, point[2] + toll), polyhedron=pol_copy):
-                        new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2] + toll))
-                    elif self.check_interior_point(Point(point[0] + toll, point[1] - toll, point[2] + toll), polyhedron=pol_copy):
-                        new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2] + toll))
-
-                new_convex_plygons.append(ConvexPolygon(new_points_convex_polygons))
-
-            interior = ConvexPolyhedron((new_convex_plygons))
-            return interior
-
-    def check_interior_point(self, point, polyhedron=None):
-        """
-            returns True if the considered point is behind all faces of self
-            and the point does not belong to the boundary of the polyhedron
-        """
-        if polyhedron is None:
-            for convex_polygon in self.convex_polygons:
-                if Vector(point, convex_polygon.plane.p) * convex_polygon.plane.n < -get_eps() or point in self.__boundary__():
-                    return False
-        else:
-            for convex_polygon in polyhedron.convex_polygons:
-                if Vector(point, convex_polygon.plane.p) * convex_polygon.plane.n < -get_eps() or point in self.__boundary__():
-                    return False
-        return True
-
-    def __overlaps__(self, cp_2):
-        """
-           **Input:**
-
-           - self: a ConvexPolyhedron
-           - obj: another ConvexPolyhedron
-
-           **Output:**
-           - Whether the polyhedron self overlaps s2
-           - The dimension of self and s2 must be the same
-           - They have some but not all points in common, they have the same dimension,
-            and the intersection of the interiors of the two geometries has the same dimension
-            as the geometries themselves
-            source: https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10
-       """
-        # The dimension of self and obj must be the same
-        # They have some but not all points in common
-        if self.get_dimension() != cp_2.get_dimension() or self.__eq__(cp_2):
-            return False
-
-        interior_1 = self.__interior__()
-        interior_2 = cp_2.__interior__()
-
-        # the intersection of the interiors of the two geometries has the same dimension
-        # as the geometries themselves
-        if interior_1.intersection(interior_2) and interior_1.intersection(interior_2):
-            if interior_1.intersection(interior_2).get_dimension() != self.get_dimension() or \
-                    interior_1.intersection(interior_2).get_dimension() != cp_2.get_dimension():
+        if self.get_dimension() == obj.get_dimension():
+            if obj.__eq__(self):  # self!=obj (within - equals)
                 return False
-            else:
+
+            polygons = self.convex_polygons
+            for pol in polygons:
+                if not obj.__contains__(pol):
+                    return False
                 return True
-        # otherwise the intersection is None
+
+        # objects don't have the same dimension
+        # but a convexPolyhedron can't be contained in a smaller object
         else:
             return False
+
 
 Parallelepiped = ConvexPolyhedron.Parallelepiped
 Cone = ConvexPolyhedron.Cone

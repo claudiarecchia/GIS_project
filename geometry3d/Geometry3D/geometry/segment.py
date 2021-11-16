@@ -118,6 +118,10 @@ class Segment(GeoBody):
         """retutn the length of the segment"""
         return self.start_point.distance(self.end_point)
 
+    """
+        Added functions for Segment objects
+    """
+
     def get_dimension(self):
         """
             Added function
@@ -125,9 +129,17 @@ class Segment(GeoBody):
         """
         return 1
 
+    def __boundary__(self):
+        """
+            Added function
+            The boundary of a segment is the set (start_point, end_point)
+        """
+        return [self.start_point, self.end_point]
+
     def __interior__(self):
         """
-        :return: A segment object: the interior of a segment
+            Added function
+            :return: A segment object: the interior of a segment
         """
         start_end = [self.start_point, self.end_point]
         points = []
@@ -162,11 +174,11 @@ class Segment(GeoBody):
                 points.append(Point(element[0] - toll, element[1] - toll, element[2]))
             elif self.__contains__(Point(element[0] + toll, element[1], element[2] + toll)):
                 points.append(Point(element[0] + toll, element[1], element[2] + toll))
-            elif self.__contains__(Point(element[0] - toll, element[1] , element[2] + toll)):
+            elif self.__contains__(Point(element[0] - toll, element[1], element[2] + toll)):
                 points.append(Point(element[0] - toll, element[1], element[2] + toll))
             elif self.__contains__(Point(element[0] + toll, element[1], element[2] - toll)):
                 points.append(Point(element[0] + toll, element[1], element[2] - toll))
-            elif self.__contains__(Point(element[0] - toll, element[1] , element[2] - toll)):
+            elif self.__contains__(Point(element[0] - toll, element[1], element[2] - toll)):
                 points.append(Point(element[0] - toll, element[1], element[2] - toll))
             elif self.__contains__(Point(element[0], element[1] + toll, element[2] + toll)):
                 points.append(Point(element[0], element[1] + toll, element[2] + toll))
@@ -184,13 +196,15 @@ class Segment(GeoBody):
                 points.append(Point(element[0], element[1], element[2] + toll))
             elif self.__contains__(Point(element[0], element[1], element[2] - toll)):
                 points.append(Point(element[0], element[1], element[2] - toll))
+            elif self.__contains__(Point(element[0], element[1] + toll, element[2] - toll)):
+                points.append(Point(element[0], element[1] + toll, element[2] - toll))
 
         new_segment = Segment(points[0], points[1])
         return new_segment
 
-
     def __crosses__(self, obj):
         """
+            Added function
             **Input:**
 
             - self: a Segment
@@ -203,8 +217,11 @@ class Segment(GeoBody):
             the intersection is less than that of at least one of them
             source: https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10
         """
-        if self.__eq__(obj) or isinstance(obj, Point):
+        if isinstance(obj, Point):
             return False
+        if isinstance(obj, Segment):
+            if self.__eq__(obj):
+                return False
 
         # The dimension of self and obj must be different (except by line/line inputs)
         if self.get_dimension() == obj.get_dimension() and not isinstance(obj, Segment):
@@ -214,8 +231,10 @@ class Segment(GeoBody):
         interior_2 = obj.__interior__()
 
         # They have some but not all interior points in common
-        if interior_1.__eq__(interior_2):
-            return False
+        # interior_1 is surely a Segment
+        if isinstance(interior_2, Segment):
+            if interior_1.__eq__(interior_2):
+                return False
 
         # the dimension of the intersection is less than that of at least one of them
         if self.intersection(obj).get_dimension() < self.get_dimension() or self.intersection(obj).get_dimension() < obj.get_dimension():
@@ -223,8 +242,24 @@ class Segment(GeoBody):
         else:
             return False
 
+    def __disjoint__(self, obj):
+        """
+            Added function
+            **Input:**
+            - self: a Segment
+            - obj: another object
+
+            **Output:**
+            - Whether the segment self disjoints obj
+        """
+        if self.intersection(obj) is None:
+            return True
+        else:
+            return False
+
     def __overlaps__(self, s2):
         """
+            Added function
            **Input:**
 
            - self: a Segment
@@ -252,22 +287,48 @@ class Segment(GeoBody):
             if interior_1.intersection(interior_2).get_dimension() != self.get_dimension() or \
                     interior_1.intersection(interior_2).get_dimension() != s2.get_dimension():
                 return False
-            else:
-                return True
+            return True
         # otherwise the intersection is None
-        else:
-            return False
+        return False
+
+    def __touches__(self, obj):
+        """
+            Added function
+            **Input:**
+            - self: a Segment
+            - obj: another object
+
+            **Output:**
+            - Whether the segment self touches obj
+            - It returns True if the only points shared between self and obj are on the
+            boundary of self and obj
+        """
+        self_boundary = self.__boundary__()
+        cp_2_boundary = obj.__boundary__()
+        intersection = self.intersection(obj)
+        if intersection:
+            # intersection is a ConvexPolyhedron, a ConvexPolygon or a Segment
+            if intersection.get_dimension() >= 2:
+                return False
+
+            # Intersection can only be a point
+            if intersection.get_dimension() == 0:
+                if intersection not in self.__interior__() and intersection not in obj.__interior__():
+                    return True
+                else:
+                    return False
 
     def __within__(self, obj):
         """
-        **Input:**
+            Added function
+            **Input:**
 
-        - self: a Segment
-        - obj: another object
+            - self: a Segment
+            - obj: another object
 
-        **Output:**
-        - Whether the segment self is within obj and
-            self!=obj (within - equals)
+            **Output:**
+            - Whether the segment self is within obj and
+                self!=obj (within - equals)
         """
         if self.get_dimension() == obj.get_dimension():
             if obj.__eq__(self):  # self!=obj (within - equals)
@@ -294,52 +355,6 @@ class Segment(GeoBody):
         # Segment can't be contained in a smaller object
         else:
             return False
-
-    def __disjoint__(self, obj):
-        """
-        **Input:**
-        - self: a Segment
-        - obj: another object
-
-        **Output:**
-        - Whether the polyhedron self disjoints obj
-        """
-        if self.intersection(obj) is None:
-            return True
-        else:
-            return False
-
-    def __boundary__(self):
-        """
-        The boundary of a segment is the set (start_point, end_point)
-        """
-        return [self.start_point, self.end_point]
-
-    def __touches__(self, obj):
-        """
-        **Input:**
-        - self: a Segment
-        - obj: another object
-
-        **Output:**
-        - Whether the segment self touches obj
-        - It returns True if the only points shared between self and obj are on the
-            boundary of self and obj
-        """
-        self_boundary = self.__boundary__()
-        cp_2_boundary = obj.__boundary__()
-        intersection = self.intersection(obj)
-        if intersection:
-            # intersection is a ConvexPolyhedron, a ConvexPolygon or a Segment
-            if intersection.get_dimension() >= 2:
-                return False
-
-            # Intersection can only be a point
-            if intersection.get_dimension() == 0:
-                if intersection not in self.__interior__() and intersection not in obj.__interior__():
-                    return True
-                else:
-                    return False
 
 
 __all__ = ("Segment",)
