@@ -53,8 +53,6 @@ r.add((cp_blue, 'b', 1), normal_length=0)
 r.add((cp_violet, 'violet', 1), normal_length=0)
 r.add((plane, 'y', 1), normal_length=0)
 
-
-
 print("Piano crosses poliedro blu: ", plane.__crosses__(cp_blue))
 print("Piano crosses poliedro viola: ", plane.__crosses__(cp_violet))
 print("Poliedro viola crosses piano: ", cp_violet.__crosses__(plane))

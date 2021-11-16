@@ -370,83 +370,74 @@ class ConvexPolygon(GeoBody):
         pol_copy = copy.deepcopy(self)
         new_points_convex_polygons = []
         for point in self.points:
-            if self.check_interior_point_polygon(Point(point[0] - toll, point[1] - toll, point[2] - toll), polygon=pol_copy):
+            if pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1] - toll, point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2] - toll))
-            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1] - toll, point[2] - toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1] - toll, point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2] - toll))
-            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1] + toll, point[2] - toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1] + toll, point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2] - toll))
-            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1] + toll, point[2] + toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1] + toll, point[2] + toll)):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2] + toll))
-            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] + toll, point[2] - toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1] + toll, point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2] - toll))
-            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] - toll, point[2] + toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1] - toll, point[2] + toll)):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2] + toll))
-            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] + toll, point[2] + toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1] + toll, point[2] + toll)):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2] + toll))
-            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1] - toll, point[2] + toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1] - toll, point[2] + toll)):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2] + toll))
-            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1], point[2]), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1], point[2])):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1], point[2]))
-            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1], point[2]), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1], point[2])):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1], point[2]))
-            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1] + toll, point[2]), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1] + toll, point[2])):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1] + toll, point[2]))
-            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] + toll, point[2]), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1] + toll, point[2])):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1] + toll, point[2]))
-            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1] - toll, point[2]), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1] - toll, point[2])):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1] - toll, point[2]))
-            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] - toll, point[2]), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1] - toll, point[2])):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2]))
-            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1], point[2] + toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1], point[2] + toll)):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1], point[2] + toll))
-            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] , point[2] + toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1] , point[2] + toll)):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1], point[2] + toll))
-            elif self.check_interior_point_polygon(Point(point[0] + toll, point[1], point[2] - toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1], point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0] + toll, point[1], point[2] - toll))
-            elif self.check_interior_point_polygon(Point(point[0] - toll, point[1] , point[2] - toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1] , point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1], point[2] - toll))
-            elif self.check_interior_point_polygon(Point(point[0], point[1] + toll, point[2] + toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0], point[1] + toll, point[2] + toll)):
                 new_points_convex_polygons.append(Point(point[0], point[1] + toll, point[2] + toll))
-            elif self.check_interior_point_polygon(Point(point[0], point[1] - toll, point[2] + toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0], point[1] - toll, point[2] + toll)):
                 new_points_convex_polygons.append(Point(point[0], point[1] - toll, point[2] + toll))
-            elif self.check_interior_point_polygon(Point(point[0], point[1] + toll, point[2] - toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0], point[1] + toll, point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0], point[1] + toll, point[2] - toll))
-            elif self.check_interior_point_polygon(Point(point[0], point[1] - toll, point[2] - toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0], point[1] - toll, point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0], point[1] - toll, point[2] - toll))
-            elif self.check_interior_point_polygon(Point(point[0], point[1] + toll, point[2]), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0], point[1] + toll, point[2])):
                 new_points_convex_polygons.append(Point(point[0], point[1] + toll, point[2]))
-            elif self.check_interior_point_polygon(Point(point[0], point[1] - toll, point[2]), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0], point[1] - toll, point[2])):
                 new_points_convex_polygons.append(Point(point[0], point[1] - toll, point[2]))
-            elif self.check_interior_point_polygon(Point(point[0], point[1], point[2] + toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0], point[1], point[2] + toll)):
                 new_points_convex_polygons.append(Point(point[0], point[1], point[2] + toll))
-            elif self.check_interior_point_polygon(Point(point[0], point[1], point[2] - toll), polygon=pol_copy):
+            elif pol_copy.check_interior_point_polygon(Point(point[0], point[1], point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0], point[1], point[2] - toll))
 
         convex_polygon_interior = ConvexPolygon(new_points_convex_polygons)
         return convex_polygon_interior
 
-    def check_interior_point_polygon(self, point, polygon=None):
+    def check_interior_point_polygon(self, point):
         """
             Added function
             returns True if the considered point is inside self and
             the point is not on the boundary of the polygon
         """
-        if polygon is None:
-            segments = self.__boundary__()
-            for s in segments:
-                if s.__contains__(point):
-                    return False
-            if self.__contains__(point):
-                return True
-        else:
-            points = polygon.points
-            segments = self.__boundary__()
-            for s in segments:
-                if s.__contains__(point):
-                    return False
-            if polygon.__contains__(point):
-                return True
+        segments = self.__boundary__()
+        for s in segments:
+            if s.__contains__(point):
+                return False
+        if self.__contains__(point):
+            return True
 
     def __crosses__(self, obj):
         """
@@ -504,8 +495,8 @@ class ConvexPolygon(GeoBody):
            - obj: another ConvexPolygon
 
            **Output:**
-           - Whether the polygon self overlaps s2
-           - The dimension of self and s2 must be the same
+           - Whether the polygon self overlaps obj
+           - The dimension of self and obj must be the same
            - They have some but not all points in common, they have the same dimension,
             and the intersection of the interiors of the two geometries has the same dimension
             as the geometries themselves

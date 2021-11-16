@@ -266,8 +266,8 @@ class Segment(GeoBody):
            - obj: another Segment
 
            **Output:**
-           - Whether the segment self overlaps s2
-           - The dimension of self and s2 must be the same
+           - Whether the segment self overlaps obj
+           - The dimension of self and obj must be the same
            - They have some but not all points in common, they have the same dimension,
             and the intersection of the interiors of the two geometries has the same dimension
             as the geometries themselves
