@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Segment Module"""
 from .body import GeoBody
+from .body import GeoBody
 from .point import Point
 from .plane import Plane
 from ..utils.vector import Vector
@@ -62,6 +63,9 @@ class Segment(GeoBody):
             # r3 = point.x <= (max(self.start_point.x,self.end_point.x) + get_eps())
         elif isinstance(other, Segment):
             return (other.start_point in self) and (other.end_point in self)
+        # cannot contain a bigger object
+        elif other.get_dimension() > self.get_dimension():
+            return False
         else:
             get_main_logger().warning(
                 "Calling type {} in type {} which is always False".format(type(other), type(self)))
@@ -193,7 +197,7 @@ class Segment(GeoBody):
             - obj: another object (except Point)
 
             **Output:**
-            - Whether the polyhedron self crosses cp_2
+            - Whether the polyhedron self crosses s2
             - The dimension of self and obj must be different
             - They have some but not all interior points in common, and the dimension of
             the intersection is less than that of at least one of them
@@ -218,5 +222,124 @@ class Segment(GeoBody):
             return True
         else:
             return False
+
+    def __overlaps__(self, s2):
+        """
+           **Input:**
+
+           - self: a Segment
+           - obj: another Segment
+
+           **Output:**
+           - Whether the segment self overlaps s2
+           - The dimension of self and s2 must be the same
+           - They have some but not all points in common, they have the same dimension,
+            and the intersection of the interiors of the two geometries has the same dimension
+            as the geometries themselves
+            source: https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10
+       """
+        # The dimension of self and obj must be the same
+        # They have some but not all points in common
+        if self.get_dimension() != s2.get_dimension() or self.__eq__(s2):
+            return False
+
+        interior_1 = self.__interior__()
+        interior_2 = s2.__interior__()
+
+        # the intersection of the interiors of the two geometries has the same dimension
+        # as the geometries themselves
+        if interior_1.intersection(interior_2) and interior_1.intersection(interior_2):
+            if interior_1.intersection(interior_2).get_dimension() != self.get_dimension() or \
+                    interior_1.intersection(interior_2).get_dimension() != s2.get_dimension():
+                return False
+            else:
+                return True
+        # otherwise the intersection is None
+        else:
+            return False
+
+    def __within__(self, obj):
+        """
+        **Input:**
+
+        - self: a Segment
+        - obj: another object
+
+        **Output:**
+        - Whether the segment self is within obj and
+            self!=obj (within - equals)
+        """
+        if self.get_dimension() == obj.get_dimension():
+            if obj.__eq__(self):  # self!=obj (within - equals)
+                return False
+            for point in [self.start_point, self.__interior__(), self.end_point]:
+                if not obj.__contains__(point):
+                    return False
+                return True
+
+        # ConvexPolygon
+        if obj.get_dimension == 2:
+            for point in self.points:
+                if not obj.check_interior_point_polygon(point):
+                    return False
+            return True
+
+        # ConvexPolyhedron
+        if obj.get_dimension == 3:
+            for point in self.points:
+                if not obj.check_interior_point(point):
+                    return False
+            return True
+
+        # Segment can't be contained in a smaller object
+        else:
+            return False
+
+    def __disjoint__(self, obj):
+        """
+        **Input:**
+        - self: a Segment
+        - obj: another object
+
+        **Output:**
+        - Whether the polyhedron self disjoints obj
+        """
+        if self.intersection(obj) is None:
+            return True
+        else:
+            return False
+
+    def __boundary__(self):
+        """
+        The boundary of a segment is the set (start_point, end_point)
+        """
+        return [self.start_point, self.end_point]
+
+    def __touches__(self, obj):
+        """
+        **Input:**
+        - self: a Segment
+        - obj: another object
+
+        **Output:**
+        - Whether the segment self touches obj
+        - It returns True if the only points shared between self and obj are on the
+            boundary of self and obj
+        """
+        self_boundary = self.__boundary__()
+        cp_2_boundary = obj.__boundary__()
+        intersection = self.intersection(obj)
+        if intersection:
+            # intersection is a ConvexPolyhedron, a ConvexPolygon or a Segment
+            if intersection.get_dimension() >= 2:
+                return False
+
+            # Intersection can only be a point
+            if intersection.get_dimension() == 0:
+                if intersection not in self.__interior__() and intersection not in obj.__interior__():
+                    return True
+                else:
+                    return False
+
 
 __all__ = ("Segment",)

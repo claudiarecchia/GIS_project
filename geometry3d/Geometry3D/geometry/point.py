@@ -107,6 +107,92 @@ class Point(object):
         """
         return self
 
+    def __within__(self, obj):
+        """
+        **Input:**
+
+        - self: a Point
+        - obj: another object
+
+        **Output:**
+        - Whether the point self is within obj and
+            self!=obj (within - equals)
+        """
+        if self.get_dimension() == obj.get_dimension():
+            if obj.__eq__(self):  # self!=obj (within - equals)
+                return False
+
+        # ConvexPolygon
+        if obj.get_dimension() == 2:
+            if not obj.check_interior_point_polygon(self):
+                return False
+            return True
+
+        # ConvexPolyhedron
+        if obj.get_dimension() == 3:
+            if not obj.check_interior_point(self):
+                return False
+            return True
+
+        # Segment
+        if obj.get_dimension() == 1:
+            if not obj.__interior__().__contains__(self):
+                return False
+            return True
+
+        else:
+            return False
+
+    def __disjoint__(self, obj):
+        """
+        **Input:**
+        - self: a Point
+        - obj: another object
+
+        **Output:**
+        - Whether the point self disjoints obj
+        """
+        if isinstance(obj, Point):
+            if not self.__eq__(obj):
+                return False
+            return True
+
+        elif obj.__contains__(self):
+            return False
+        return True
+
+    def __boundary__(self):
+        return self
+
+    def __touches__(self, obj):
+        """
+        **Input:**
+        - self: a Point
+        - obj: another object
+
+        **Output:**
+        - Whether the point self touches obj
+        - It returns True if the only points shared between self and obj are on the
+            boundary of self and obj
+        - Can not compute in point/point case
+            source: https://www.researchgate.net/publication/221471671_A_Small_Set_of_Formal_Topological_Relationships_Suitable_for_End-User_Interaction
+        """
+        if not isinstance(obj, Point):
+            self_boundary = self.__boundary__()
+            cp_2_boundary = obj.__boundary__()
+            intersection = obj.intersection(self)  # intersection is a symmetric operation
+            if intersection:
+                if isinstance(intersection, list):
+                    for point in intersection:
+                        if point != self_boundary or point not in cp_2_boundary:
+                            return False
+                    return True
+                elif isinstance(intersection, Point):
+                    if intersection != self_boundary or intersection not in cp_2_boundary:
+                        return False
+                return True
+        return False
+
 
 origin = Point.origin
 

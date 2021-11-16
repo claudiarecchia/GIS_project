@@ -251,6 +251,9 @@ class ConvexPolygon(GeoBody):
         
         elif isinstance(other,Segment):
             return (other.start_point in self) and (other.end_point in self)
+        # cannot contain a bigger object
+        elif other.get_dimension() > self.get_dimension():
+            return False
         else:
             return NotImplementedError("")
     
@@ -415,11 +418,7 @@ class ConvexPolygon(GeoBody):
             the point is not on the boundary of the polygon
         """
         if polygon is None:
-            points = self.points
-            segments = []
-            for i in range(len(points)):
-                index = (i + 1) % len(points)
-                segments.append(Segment((points[i]), (points[index])))
+            segments = self.__boundary__()
             for s in segments:
                 if s.__contains__(point):
                     return False
@@ -427,15 +426,20 @@ class ConvexPolygon(GeoBody):
                 return True
         else:
             points = polygon.points
-            segments = []
-            for i in range(len(points)):
-                index = (i + 1) % len(points)
-                segments.append(Segment((points[i]), (points[index])))
+            segments = self.__boundary__()
             for s in segments:
                 if s.__contains__(point):
                     return False
             if polygon.__contains__(point):
                 return True
+
+    def __boundary__(self):
+        points = self.points
+        segments = []
+        for i in range(len(points)):
+            index = (i + 1) % len(points)
+            segments.append(Segment((points[i]), (points[index])))
+        return segments
 
 
     def __crosses__(self, obj):
@@ -446,7 +450,7 @@ class ConvexPolygon(GeoBody):
             - obj: another object (except Point)
 
             **Output:**
-            - Whether the polyhedron self crosses cp_2
+            - Whether the polyhedron self crosses s2
             - The dimension of self and obj must be different
             - They have some but not all interior points in common, and the dimension of
             the intersection is less than that of at least one of them
@@ -469,6 +473,124 @@ class ConvexPolygon(GeoBody):
         else:
             return False
 
+    def __overlaps__(self, cp_2):
+        """
+           **Input:**
+
+           - self: a ConvexPolygon
+           - obj: another ConvexPolygon
+
+           **Output:**
+           - Whether the polygon self overlaps s2
+           - The dimension of self and s2 must be the same
+           - They have some but not all points in common, they have the same dimension,
+            and the intersection of the interiors of the two geometries has the same dimension
+            as the geometries themselves
+            source: https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10
+       """
+        # The dimension of self and obj must be the same
+        # They have some but not all points in common
+        if self.get_dimension() != cp_2.get_dimension() or self.__eq__(cp_2):
+            return False
+
+        interior_1 = self.__interior__()
+        interior_2 = cp_2.__interior__()
+
+        # the intersection of the interiors of the two geometries has the same dimension
+        # as the geometries themselves
+        if interior_1.intersection(interior_2) and interior_1.intersection(interior_2):
+            if interior_1.intersection(interior_2).get_dimension() != self.get_dimension() or \
+                    interior_1.intersection(interior_2).get_dimension() != cp_2.get_dimension():
+                return False
+            else:
+                return True
+        # otherwise the intersection is None
+        else:
+            return False
+
+    def __within__(self, obj):
+        """
+        **Input:**
+
+        - self: a ConvexPolygon
+        - obj: another object
+
+        **Output:**
+        - Whether the polyhedron self is within obj and
+            self!=obj (within - equals)
+        """
+        if self.get_dimension() == obj.get_dimension():
+            if obj.__eq__(self):  # self!=obj (within - equals)
+                return False
+            else:
+                for point in self.points:
+                    if not obj.__contains__(point):
+                        return False
+                return True
+
+        # obj is a ConvexPolyhedron
+        if self.get_dimension() < obj.get_dimension():
+            for point in self.points:
+                if not obj.check_interior_point(point):
+                    return False
+            return True
+
+        # ConvexPolygon can't be contained in a smaller object
+        else:
+            return False
+
+    def __disjoint__(self, obj):
+        """
+        **Input:**
+        - self: a ConvexPolygon
+        - obj: another object
+
+        **Output:**
+        - Whether the polyhedron self disjoints obj
+        """
+        if self.intersection(obj) is None:
+            return True
+        else:
+            return False
+
+    def __touches__(self, obj):
+        """
+        **Input:**
+
+        - self: a ConvexPolygon
+        - obj: another object
+
+        **Output:**
+        - Whether the polygon self touches obj
+        - It returns True if the only points shared between self and obj are on the
+            boundary of self and obj
+        """
+        self_boundary = self.__boundary__()
+        cp_2_boundary = obj.__boundary__()
+        intersection = self.intersection(obj)
+
+        if intersection:
+            if intersection.get_dimension() >= 2:
+                return False
+            # intersection can be a Segment or a Point
+            if intersection.get_dimension() == 1:
+                # the intersection is a Segment
+                if self.__interior__() not in intersection and obj.__interior__() not in intersection:
+                    return True
+                return False
+
+            if intersection.get_dimension() == 0:
+                # the intersection is a Point
+                if obj.get_dimension() != 0:
+                    if intersection not in self.__interior__() and intersection not in obj.__interior__():
+                        return True
+                    return False
+                else:
+                    # second object is a point
+                    if self.check_interior_point(intersection):
+                        return False
+                    return True
+        return False
 
 Parallelogram = ConvexPolygon.Parallelogram
 Circle = ConvexPolygon.Circle
