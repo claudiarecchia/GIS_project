@@ -41,8 +41,10 @@ class Segment(GeoBody):
             raise ValueError('Cannot create segment with type:%s and %s' % (type(a), type(b)))
 
     def __eq__(self, other):
-        return ((self.start_point == other.start_point and self.end_point == other.end_point) or
-                (self.end_point == other.start_point and self.start_point == other.end_point))
+        if isinstance(other, Segment):
+            return ((self.start_point == other.start_point and self.end_point == other.end_point) or
+                    (self.end_point == other.start_point and self.start_point == other.end_point))
+        return False
 
     def __repr__(self):
         return "Segment({}, {})".format(self.start_point, self.end_point)
@@ -74,6 +76,8 @@ class Segment(GeoBody):
     def in_(self, other):
         """other can be plane or line"""
         if isinstance(other, Line):
+            return (self.start_point in other) and (self.end_point in other)
+        if isinstance(other, Segment):
             return (self.start_point in other) and (self.end_point in other)
         elif isinstance(other, Plane):
             return (self.start_point in other) and (self.end_point in other)
@@ -236,11 +240,20 @@ class Segment(GeoBody):
             if interior_1.__eq__(interior_2):
                 return False
 
-        # the dimension of the intersection is less than that of at least one of them
-        if self.intersection(obj).get_dimension() < self.get_dimension() or self.intersection(obj).get_dimension() < obj.get_dimension():
-            return True
-        else:
-            return False
+        intersection = self.intersection(obj)
+        if intersection:
+            # if intersection equals self or obj, there is no cross
+            if intersection.__eq__(self) or intersection.__eq__(obj):
+                return False
+            # if the intersection is a point that lies on the boundary, then the relation can not be a cross (is a touch)
+            if intersection.get_dimension() == 0:
+                for el in self.__boundary__():
+                    if intersection in el:
+                        return False
+            # the dimension of the intersection is less than that of at least one of them
+            if intersection.get_dimension() < self.get_dimension() or intersection.get_dimension() < obj.get_dimension():
+                return True
+        return False
 
     def __disjoint__(self, obj):
         """
@@ -315,8 +328,7 @@ class Segment(GeoBody):
             if intersection.get_dimension() == 0:
                 if intersection not in self.__interior__() and intersection not in obj.__interior__():
                     return True
-                else:
-                    return False
+        return False
 
     def __within__(self, obj):
         """
@@ -333,21 +345,22 @@ class Segment(GeoBody):
         if self.get_dimension() == obj.get_dimension():
             if obj.__eq__(self):  # self!=obj (within - equals)
                 return False
-            for point in [self.start_point, self.__interior__(), self.end_point]:
+            # for point in [self.start_point, self.__interior__(), self.end_point]:
+            for point in [self.start_point, self.end_point]:
                 if not obj.__contains__(point):
                     return False
                 return True
 
         # ConvexPolygon
-        if obj.get_dimension == 2:
-            for point in self.points:
+        if obj.get_dimension() == 2:
+            for point in [self.start_point, self.end_point]:
                 if not obj.check_interior_point_polygon(point):
                     return False
             return True
 
         # ConvexPolyhedron
-        if obj.get_dimension == 3:
-            for point in self.points:
+        if obj.get_dimension() == 3:
+            for point in [self.start_point, self.end_point]:
                 if not obj.check_interior_point(point):
                     return False
             return True

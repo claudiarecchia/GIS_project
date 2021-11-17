@@ -5,7 +5,7 @@ import math
 from ..utils.logger import get_main_logger
 from ..utils.constant import get_sig_figures,get_eps
 from ..utils.vector import Vector
-
+import copy
 
 class Point(object):
     """
@@ -204,6 +204,24 @@ class Point(object):
 
         else:
             return False
+
+    def scale(self, factor):
+        """
+            Added function
+            **Input:**
+
+            - self: a Point
+            - factor: a value representing the factor multiplying each coordinate of self
+
+            **Output:**
+            - A new point with multiplied coordinates
+        """
+        new_coordinates = []
+        point = copy.deepcopy(self)
+        for coordinate in point:
+            new_coordinates.append(coordinate*factor)
+        return Point(new_coordinates[0], new_coordinates[1], new_coordinates[2])
+
 
     # CLARIFY: un punto deve avere il metodo __overlaps__?
     #   restituirà un valore positivo quando self EQ obj

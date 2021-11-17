@@ -458,11 +458,21 @@ class ConvexPolyhedron(GeoBody):
         if interior_1.__eq__(interior_2):
             return False
 
-        # the dimension of the intersection is less than that of at least one of them
-        if self.intersection(obj).get_dimension() < self.get_dimension() or self.intersection(obj).get_dimension() < obj.get_dimension():
-            return True
-        else:
-            return False
+        intersection = self.intersection(obj)
+        if intersection:
+            # if intersection equals self or obj, there is no cross
+            if intersection.__eq__(self) or intersection.__eq__(obj):
+                return False
+            # if the intersection is a point or a segment that lies on the boundary,
+            # then the relation can not be a cross (is a touch)
+            if intersection.get_dimension() < 2:
+                for el in self.__boundary__():
+                    if intersection in el:
+                        return False
+            # the dimension of the intersection is less than that of at least one of them
+            if intersection.get_dimension() < self.get_dimension() or intersection.get_dimension() < obj.get_dimension():
+                return True
+        return False
 
     def convex_polyhedron_contains(self, cp_2):
         """
@@ -564,6 +574,10 @@ class ConvexPolyhedron(GeoBody):
 
             if intersection.get_dimension() == 1:
                 # the intersection is a Segment
+                # if obj is a Segment, then there is no touch (intersection between
+                # a Polyhedron and a Segment might have to be a Point)
+                if obj.get_dimension() == 1:
+                    return False
                 if self.__interior__() not in intersection and obj.__interior__() not in intersection:
                     return True
                 return False
