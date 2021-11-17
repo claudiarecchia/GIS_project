@@ -280,12 +280,14 @@ class Segment(GeoBody):
 
         interior_1 = self.__interior__()
         interior_2 = s2.__interior__()
+        intersection = self.intersection(s2)
 
         # the intersection of the interiors of the two geometries has the same dimension
         # as the geometries themselves
-        if interior_1.intersection(interior_2) and interior_1.intersection(interior_2):
+        if interior_1.intersection(interior_2) and interior_2.intersection(interior_1):
             if interior_1.intersection(interior_2).get_dimension() != self.get_dimension() or \
-                    interior_1.intersection(interior_2).get_dimension() != s2.get_dimension():
+                    interior_1.intersection(interior_2).get_dimension() != s2.get_dimension() or \
+                    intersection.__eq__(self) or intersection.__eq__(s2):
                 return False
             return True
         # otherwise the intersection is None
@@ -303,8 +305,6 @@ class Segment(GeoBody):
             - It returns True if the only points shared between self and obj are on the
             boundary of self and obj
         """
-        self_boundary = self.__boundary__()
-        cp_2_boundary = obj.__boundary__()
         intersection = self.intersection(obj)
         if intersection:
             # intersection is a ConvexPolyhedron, a ConvexPolygon or a Segment

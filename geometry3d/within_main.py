@@ -89,9 +89,6 @@ segment_1 = Segment(origin(), Point(2,2,2))
 segment_2 = Segment(origin(), Point(1,1,1))
 segment_3 = Segment(origin(), Point(2,0,0))
 
-#  CLARIFY i due segmenti verificano within e overlaps
-#   condividono il primo punto del segmento (boundary)
-#   => within senza boundary?
 r3.add((segment_2, 'r', 1), normal_length=0)
 r3.add((segment_1, 'b', 1), normal_length=0)
 print("SEGMENT red within blue: ", segment_2.__within__(segment_1))
@@ -102,9 +99,6 @@ print("\n")
 a = Point(0.5, 0.5, 0.5)
 b = Point(1, 0.5, 0.5)
 c = Point(0.5, 0.5, 0.5)
-#  CLARIFY due punti possono verificare la within solo se sono uguali
-#   ma se sono uguali sarà verificata la EQ => due punti sono sono mai in within
-#   (ma dovrebbero esserlo= https://community.esri.com/t5/python-questions/how-to-use-the-geometry-within-function-in-arcpy/td-p/66834)
 print("A within B: ", a.__within__(b))
 print("A within C: ", a.__within__(c))
 print("A equals C: ", a.__eq__(c))

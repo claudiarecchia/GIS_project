@@ -13,7 +13,7 @@ from ...global_variables import *
 
 
 class ConvexPolyhedron(GeoBody):
-    class_level = 5 # the class level of ConvexPolyhedron
+    class_level = 5  # the class level of ConvexPolyhedron
     """
     **Input:**
     
@@ -375,26 +375,15 @@ class ConvexPolyhedron(GeoBody):
         """
         return 3
 
-    def __boundary__(self, other=None):
+    def __boundary__(self):
         """
             Added function
             **Input:**
-
             - self: a ConvexPolyhedron
-            - other: a ConvexPolyhedron (optional)
-
             **Output:**
-            - The boundary or self or other
+            - The boundary or self (a set of ConvexPolygons)
         """
-        boundary = []
-        if other is None:
-            b = self.convex_polygons
-        else:
-            b = other.convex_polygons
-        for polygon in b:
-            for point in polygon.points:
-                boundary.append(point)
-        return boundary
+        return self.convex_polygons
 
     def __interior__(self):
         """
@@ -439,7 +428,7 @@ class ConvexPolyhedron(GeoBody):
             and the point does not belong to the boundary of the polyhedron
         """
         for convex_polygon in self.convex_polygons:
-            if Vector(point, convex_polygon.plane.p) * convex_polygon.plane.n < -get_eps() or point in self.__boundary__():
+            if Vector(point, convex_polygon.plane.p) * convex_polygon.plane.n < -get_eps() or point in [pol for pol in self.__boundary__()]:
                 return False
         return True
 
@@ -536,18 +525,17 @@ class ConvexPolyhedron(GeoBody):
 
         interior_1 = self.__interior__()
         interior_2 = cp_2.__interior__()
-
+        intersection = self.intersection(cp_2)
         # the intersection of the interiors of the two geometries has the same dimension
         # as the geometries themselves
         if interior_1.intersection(interior_2) and interior_1.intersection(interior_2):
             if interior_1.intersection(interior_2).get_dimension() != self.get_dimension() or \
-                    interior_1.intersection(interior_2).get_dimension() != cp_2.get_dimension():
+                    interior_1.intersection(interior_2).get_dimension() != cp_2.get_dimension() or \
+                    intersection.__eq__(self) or intersection.__eq__(cp_2):
                 return False
-            else:
-                return True
+            return True
         # otherwise the intersection is None
-        else:
-            return False
+        return False
 
     def __touches__(self, obj):
         """
@@ -562,8 +550,6 @@ class ConvexPolyhedron(GeoBody):
             - It returns True if the only points shared between self and obj are on the
                 boundary of self and obj
         """
-        self_boundary = self.__boundary__()
-        cp_2_boundary = obj.__boundary__()
         intersection = self.intersection(obj)
         if intersection:
             # intersection is a ConvexPolyhedron

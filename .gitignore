@@ -8,5 +8,4 @@ pygeos_and_shapely/linestrings/
 __pycache__/
 .idea/
 
-pygeos_and_shapely/main_pygeos.py
-pygeos_and_shapely/pygeos_shapely.py
+pygeos_and_shapely/

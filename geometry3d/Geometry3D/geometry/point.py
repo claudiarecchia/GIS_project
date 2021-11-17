@@ -182,8 +182,7 @@ class Point(object):
                 self!=obj (within - equals)
         """
         if self.get_dimension() == obj.get_dimension():
-            if obj.__eq__(self):  # self!=obj (within - equals)
-                return False
+            return False
 
         # ConvexPolygon
         if obj.get_dimension() == 2:
@@ -207,7 +206,7 @@ class Point(object):
             return False
 
     # CLARIFY: un punto deve avere il metodo __overlaps__?
-    #   restituirà un valore positivo quando sdelf EQ obj
+    #   restituirà un valore positivo quando self EQ obj
     #   quindi il risultato è uguale alla relazione EQ
     # def __overlaps__(self, obj):
     #     """
