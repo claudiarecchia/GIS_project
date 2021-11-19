@@ -17,7 +17,7 @@ class MatplotlibRenderer():
         self.point_set = set()
         self.segment_set = set()
         self.arrow_set = set()
-    def show(self):
+    def show(self, el=None, az=None):
         """
         Draw the image
         """
@@ -26,6 +26,16 @@ class MatplotlibRenderer():
         fig = plt.figure()
         ax = Axes3D(fig, auto_add_to_figure=False)
         fig.add_axes(ax)
+        if el:
+            ax.elev = el
+        if az:
+            ax.azim = az
+
+        # Labels.
+        ax.set_xlabel('x')
+        ax.set_ylabel('y')
+        ax.set_zlabel('z')
+
         # ax.set_xlim3d(right=3)
         # ax.set_ylim3d(ymax=3)
         # ax.set_zlim3d(top=3)

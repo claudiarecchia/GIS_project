@@ -254,7 +254,21 @@ class ConvexPolygon(GeoBody):
             return r1 and r2
 
         elif isinstance(other, Segment):
-            return (other.start_point in self) and (other.end_point in self)
+            if self.__eq__(other):
+                return False
+            if (other.start_point in self) and (other.end_point in self):
+                if other.start_point not in self.__boundary__() and other.end_point not in self.__boundary__():
+                    return True
+            return False
+
+        elif isinstance(other, ConvexPolygon):
+            if self.__eq__(other):
+                return False
+            for el in other.points:
+                if not self.__contains__(el):
+                    return False
+            return True
+
         # cannot contain a bigger object
         elif other.get_dimension() > self.get_dimension():
             return False
@@ -370,7 +384,7 @@ class ConvexPolygon(GeoBody):
         """
         pol_copy = copy.deepcopy(self)
         new_points_convex_polygons = []
-        for point in self.points:
+        for point in pol_copy.points:
             if pol_copy.check_interior_point_polygon(Point(point[0] - toll, point[1] - toll, point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0] - toll, point[1] - toll, point[2] - toll))
             elif pol_copy.check_interior_point_polygon(Point(point[0] + toll, point[1] - toll, point[2] - toll)):
@@ -476,6 +490,18 @@ class ConvexPolygon(GeoBody):
                 for el in self.__boundary__():
                     if intersection in el:
                         return False
+
+                # check if the intersection is the first or the last point of obj
+                # if so, then it's not a cross (but a touch)
+                if obj.get_dimension() == 1:
+                    if intersection in [obj.start_point, obj.end_point]:
+                        return False
+
+            if intersection.get_dimension() == 1:
+                for el in self.__boundary__():
+                    if (intersection in el or intersection.__eq__(el)):
+                        # if obj.__interior__().__disjoint__(el) or self.__interior__().__disjoint__(el):
+                        return False
             # the dimension of the intersection is less than that of at least one of them
             if intersection.get_dimension() < self.get_dimension() or intersection.get_dimension() < obj.get_dimension():
                 return True
@@ -554,14 +580,14 @@ class ConvexPolygon(GeoBody):
             # intersection can be a Segment or a Point
             if intersection.get_dimension() == 1:
                 # the intersection is a Segment
-                if self.__interior__() not in intersection and obj.__interior__() not in intersection:
+                if self.__interior__() not in intersection or obj.__interior__() not in intersection:
                     return True
                 return False
 
             if intersection.get_dimension() == 0:
                 # the intersection is a Point
                 if obj.get_dimension() != 0:
-                    if intersection not in self.__interior__() and intersection not in obj.__interior__():
+                    if intersection not in self.__interior__() or intersection not in obj.__interior__():
                         return True
                     return False
                 else:
