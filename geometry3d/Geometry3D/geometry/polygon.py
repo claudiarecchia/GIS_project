@@ -256,8 +256,12 @@ class ConvexPolygon(GeoBody):
         elif isinstance(other, Segment):
             if self.__eq__(other):
                 return False
+            intersection = self.intersection(other)
             if (other.start_point in self) and (other.end_point in self):
-                if other.start_point not in self.__boundary__() and other.end_point not in self.__boundary__():
+                # check if element belongs completely to the boundary
+                if not (any([other.start_point in segment for segment in self.__boundary__()]) and any([other.end_point in segment for segment in self.__boundary__()])):
+                    return True
+                if intersection.intersection(self.__interior__()) is not None and intersection.intersection(other.__interior__()) is not None:
                     return True
             return False
 
@@ -437,6 +441,8 @@ class ConvexPolygon(GeoBody):
                 new_points_convex_polygons.append(Point(point[0], point[1], point[2] + toll))
             elif pol_copy.check_interior_point_polygon(Point(point[0], point[1], point[2] - toll)):
                 new_points_convex_polygons.append(Point(point[0], point[1], point[2] - toll))
+            else:
+                new_points_convex_polygons.append(Point(point[0], point[1], point[2]))
 
         convex_polygon_interior = ConvexPolygon(new_points_convex_polygons)
         return convex_polygon_interior
@@ -464,13 +470,11 @@ class ConvexPolygon(GeoBody):
 
             **Output:**
             - Whether the polyhedron self crosses s2
-            - The dimension of self and obj must be different
             - They have some but not all interior points in common, and the dimension of
             the intersection is less than that of at least one of them
             source: https://en.wikipedia.org/wiki/DE-9IM#cite_note-davis2007-10
         """
-        # The dimension of self and obj must be different
-        if self.get_dimension() == obj.get_dimension() or self.__eq__(obj) or isinstance(obj, Point):
+        if self.__eq__(obj) or isinstance(obj, Point):
             return False
 
         interior_1 = self.__interior__()
@@ -487,9 +491,13 @@ class ConvexPolygon(GeoBody):
                 return False
             # if the intersection is a point that lies on the boundary, then the relation can not be a cross (is a touch)
             if intersection.get_dimension() == 0:
-                for el in self.__boundary__():
-                    if intersection in el:
-                        return False
+                if intersection in self.__interior__() and intersection in obj.__interior__():
+                    for el in self.__boundary__():
+                        if intersection in el:
+                            return False
+                    # the intersection is in the interiors
+                    return True
+                return False
 
                 # check if the intersection is the first or the last point of obj
                 # if so, then it's not a cross (but a touch)
@@ -498,9 +506,21 @@ class ConvexPolygon(GeoBody):
                         return False
 
             if intersection.get_dimension() == 1:
+                if obj.get_dimension() < 3:
+                    if intersection.intersection(self.__interior__()) is None or intersection.intersection(obj.__interior__()) is None:
+                        return False
+
                 for el in self.__boundary__():
                     if (intersection in el or intersection.__eq__(el)):
                         # if obj.__interior__().__disjoint__(el) or self.__interior__().__disjoint__(el):
+                        return False
+                if obj.get_dimension() == 3:
+                    # if intersection lies in the boundary of obj and not in the interior, then there is no cross (it's a touch)
+                    if any([intersection in cp for cp in obj.__boundary__()]):
+                        if not (intersection.start_point in obj.__interior__() or intersection.end_point in obj.__interior__()):
+                            return False
+                    # there must be an intersection between the two interiors
+                    if self.__interior__().intersection(obj.__interior__()) is None:
                         return False
             # the dimension of the intersection is less than that of at least one of them
             if intersection.get_dimension() < self.get_dimension() or intersection.get_dimension() < obj.get_dimension():
@@ -580,7 +600,9 @@ class ConvexPolygon(GeoBody):
             # intersection can be a Segment or a Point
             if intersection.get_dimension() == 1:
                 # the intersection is a Segment
-                if self.__interior__() not in intersection or obj.__interior__() not in intersection:
+                if intersection.intersection(self.__interior__()) is not None and intersection.intersection(obj.__interior__()) is not None:
+                    return False
+                if intersection not in self.__interior__() or obj.__interior__() not in intersection:
                     return True
                 return False
 

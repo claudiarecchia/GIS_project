@@ -265,7 +265,7 @@ class Segment(GeoBody):
                 # obj is a convexpolygon
                 # if the intersection is on the boundary of obj, then it's not a cross but it's a touch
                 if obj.get_dimension() == 2:
-                    if intersection in obj.__boundary__():
+                    if any([intersection in el for el in obj.__boundary__()]):
                         return False
 
                 # obj is a convexpolyhedron
@@ -279,6 +279,9 @@ class Segment(GeoBody):
 
             # intersection and self are Segments
             if intersection.get_dimension() == 1:
+                if obj.get_dimension() == 3:
+                    if any([intersection in cp for cp in obj.__boundary__()]):
+                        return False
                 for el in self.__boundary__():
                     if intersection.__eq__(el):
                         return False
@@ -359,6 +362,20 @@ class Segment(GeoBody):
                 return False
 
             if intersection.get_dimension() == 1:
+                if obj.get_dimension() != 3:
+                    if intersection.intersection(self.__interior__()) is not None and intersection.intersection(obj.__interior__()) is not None:
+                        return False
+                else:
+                    if intersection.intersection(self.__interior__()) is not None:
+                        # if intersection.__interior__() not in self:
+                        for cp in obj.__boundary__():
+                            if intersection.start_point in cp and intersection.end_point in cp:
+                                return True
+                            if intersection.start_point in cp.__boundary__() and intersection.end_point in cp.__boundary__():
+                                return True
+                        # otherwise interiors touch
+                        return False
+
                 if self.__interior__() not in intersection or intersection not in obj.__interior__():
                     return True
                 if all([self.__contains__(point) for point in intersection]):
@@ -389,6 +406,7 @@ class Segment(GeoBody):
             - Whether the segment self is within obj and
                 self!=obj (within - equals)
         """
+        intersection = self.intersection(obj)
         if self.get_dimension() == obj.get_dimension():
             if obj.__eq__(self):  # self!=obj (within - equals)
                 return False
@@ -402,7 +420,11 @@ class Segment(GeoBody):
         if obj.get_dimension() == 2:
             for point in [self.start_point, self.end_point]:
                 if not obj.check_interior_point_polygon(point):
-                    return False
+                    for el in obj.__boundary__():
+                        if self in el or self.__eq__(el):
+                            return False
+                    if not any([point in p for p in obj.__boundary__()]):
+                        return False
             return True
 
         # ConvexPolyhedron
@@ -410,6 +432,17 @@ class Segment(GeoBody):
             for point in [self.start_point, self.end_point]:
                 if not obj.check_interior_point(point):
                     return False
+            # check if segment completely belongs to the boundary of obj
+            for cp in obj.__boundary__():
+                if intersection in cp or intersection in cp.__boundary__():
+                    return False
+            # there must be some interior point shared between the two geometries
+            if self.intersection(obj.__interior__()) is None:
+                return False
+            # within means that the intersection is in the interiors
+            if self.__interior__() in intersection and \
+                    not (obj.check_interior_point(intersection.start_point) or obj.check_interior_point(intersection.end_point)):
+                return False
             return True
 
         # Segment can't be contained in a smaller object

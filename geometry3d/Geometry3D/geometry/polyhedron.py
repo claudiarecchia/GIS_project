@@ -265,7 +265,10 @@ class ConvexPolyhedron(GeoBody):
             return True
 
         elif isinstance(other, Segment):
-            return ((other.start_point in self) and (other.end_point in self))
+            intersection = self.intersection(other)
+            if self.__interior__().intersection(other.__interior__()) and not any([intersection in cp for cp in self.__boundary__()]):
+                return (self.check_interior_point(other.start_point) and self.check_interior_point(other.end_point))
+            return False
         
         elif isinstance(other, ConvexPolygon):
             for point in other.points:
@@ -471,7 +474,8 @@ class ConvexPolyhedron(GeoBody):
                         return False
             if intersection.get_dimension() == 1:
                 for el in self.__boundary__():
-                    if intersection in el and obj.__interior__().__disjoint__(el):
+                    # if intersection in el and obj.__interior__().__disjoint__(el):
+                    if intersection.start_point in el and intersection.end_point in el and intersection not in self.__interior__():
                         return False
 
                 if sum([intersection.end_point in el for el in self.__boundary__()]) >= 1 and sum([intersection.start_point in el for el in self.__boundary__()]):
@@ -597,14 +601,43 @@ class ConvexPolyhedron(GeoBody):
 
             if intersection.get_dimension() == 1:
                 # the intersection is a Segment
-                if self.__interior__() not in intersection and obj.__interior__() not in intersection:
-                    return True
+                # if intersection not in self.__interior__() or obj.__interior__() not in intersection:
+
+                # if (intersection.start_point in self.__interior__() or any([intersection.start_point in cp for cp in self.__boundary__()])) and \
+                #         (intersection.end_point in self.__interior__() or any([intersection.end_point in cp for cp in self.__boundary__()])) and \
+                #         obj.__interior__().intersection(self) is not None:
+
+                if self.check_interior_point(intersection.start_point) and self.check_interior_point(intersection.end_point) and \
+                        obj.__interior__().intersection(self) is not None:
+                    if any([intersection.start_point in cp for cp in self.__boundary__()]) and \
+                        any([intersection.end_point in cp for cp in self.__boundary__()]):
+                            # if obj.__interior__().intersection(self.__interior__()) is not None:
+                            #     return False
+                            if intersection in self and intersection not in self.__boundary__():
+                                return False
+                            for el in self.__boundary__():
+                                # the intersection is only on the boundary of self
+                                # and the segments has its interior points in the intersection
+                                # then it's a touch
+                                if obj.__interior__().intersection(el).__eq__(intersection):
+                                    return True
+                                if intersection in el:
+                                    return True
+
+                            if obj.__interior__().intersection(self) is not None:
+                                return True
+                    return False
+
+                if (intersection.start_point not in self.__interior__() and intersection.end_point not in self.__interior__())\
+                        or obj.__interior__() not in intersection:
+                        return True
+
                 return False
 
             if intersection.get_dimension() == 0:
                 # the intersection is a Point
                 if obj.get_dimension() != 0:
-                    if intersection not in self.__interior__() and intersection not in obj.__interior__():
+                    if intersection not in self.__interior__() or intersection not in obj.__interior__():
                         return True
 
                     # obj is a segment
