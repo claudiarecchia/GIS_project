@@ -473,6 +473,24 @@ class ConvexPolyhedron(GeoBody):
                     if intersection in el:
                         return False
             if intersection.get_dimension() == 1:
+                # if the obj is a segment that has the start/end point inside but the other is outside,
+                # then it's a cross
+                if obj.get_dimension() == 1:
+                    if (obj.start_point in self and obj.end_point not in self):
+                        if not any([obj.start_point in cp for cp in self.__boundary__()]):
+                            return True
+                    if (obj.start_point not in self and obj.end_point in self):
+                        if not any([obj.end_point in cp for cp in self.__boundary__()]):
+                            return True
+
+                    # if the interior crosse (the intersection is not on self's boundary)
+                    if obj.__interior__().intersection(self) is not None:
+                        if not any([obj.__interior__().intersection(self).start_point in cp for cp in self.__boundary__()]):
+                            if not any([obj.__interior__().intersection(self).end_point in self.__boundary__()]):
+                                return True
+
+                    return False
+
                 for el in self.__boundary__():
                     # if intersection in el and obj.__interior__().__disjoint__(el):
                     if intersection.start_point in el and intersection.end_point in el and intersection not in self.__interior__():
@@ -621,7 +639,7 @@ class ConvexPolyhedron(GeoBody):
                                 # then it's a touch
                                 if obj.__interior__().intersection(el).__eq__(intersection):
                                     return True
-                                if intersection in el:
+                                if intersection.start_point in el and intersection.end_point in el:
                                     return True
 
                             if obj.__interior__().intersection(self) is not None:

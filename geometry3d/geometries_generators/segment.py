@@ -27,11 +27,3 @@ if __name__ == "__main__":
         r.add((s, 'r', 1), normal_length=0)
     r.show()
 
-
-# s = Segment(origin(), x_unit_vector()*2)
-# s2 = Segment(origin(), z_unit_vector()*2)
-# s2 = Segment(origin(), z_unit_vector()*2)
-# r = Renderer()
-# r.add((s, 'r', 1), normal_length=0)
-# r.add((s2, 'b', 1), normal_length=0)
-# r.show()
