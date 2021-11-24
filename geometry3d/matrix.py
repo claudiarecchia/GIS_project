@@ -74,6 +74,7 @@ def check_JEPD(element1, element2, trues):
             print(element2.convex_polygons)
         else:
             print(element2)
+        exit()
 
 
 def print_geometries_first_loop(geoms, i, iter, j, k, relation_AB, relation_AC, relation_BC):
@@ -132,15 +133,37 @@ def calculate_matrix_values(geoms, df, file_name):
     for rn1 in relation_names:
         for rn2 in relation_names:
             if df[rn1][rn2] is None:
-                return False
+                return [False, df]
 
-    return True
+    return [True, df]
 
 
 if __name__ == "__main__":
+    matrices = []
     df = init_matrix()
     full_matrix = False
     file_name = input("Nome del file dove salvare la tabella di composizione: ")
-    while not full_matrix:
+    x = -1
+    same_matrix = 0
+    while same_matrix < convergence_value:
+        x += 1
         geoms = init_and_select_geometries()
-        full_matrix = calculate_matrix_values(geoms, df, file_name)
+        full_matrix, matrix = calculate_matrix_values(geoms, df, file_name)
+        matrices.append(matrix)
+        same = True
+        if len(matrices) > 1:
+            for i in relation_names:
+                for k in relation_names:
+                    if not (matrices[x-1] == matrices[x])[i][k]:
+                        same_matrix = 0
+                        same = False
+                        # print("not same matrix")
+                        break
+            if same:
+                same_matrix += 1
+                print("same matrix")
+            # print(matrices[x-1] == matrices[x])
+
+
+
+

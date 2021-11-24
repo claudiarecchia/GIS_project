@@ -54,4 +54,3 @@ if __name__ == "__main__":
     for s in pols:
         r.add((s, 'r', 1), normal_length=0)
     r.show()
-
